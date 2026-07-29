@@ -1,0 +1,30 @@
+const express = require('express');
+const pool = require('../db/pool');
+const { requireAuth } = require('../middleware/auth');
+
+const router = express.Router();
+router.use(requireAuth);
+
+// GET /api/companies — list every company this user is allowed to see
+router.get('/', async (req, res) => {
+  try {
+    const hasAllCompaniesPermission = req.user.permissions?.all === true;
+
+    const query = hasAllCompaniesPermission
+      ? `SELECT id, code, name, business_type, base_currency FROM companies WHERE tenant_id = $1 AND is_active = true ORDER BY name`
+      : `SELECT c.id, c.code, c.name, c.business_type, c.base_currency
+         FROM companies c
+         JOIN user_company_access uca ON uca.company_id = c.id
+         WHERE c.tenant_id = $1 AND uca.user_id = $2 AND c.is_active = true
+         ORDER BY c.name`;
+
+    const params = hasAllCompaniesPermission ? [req.user.tenantId] : [req.user.tenantId, req.user.userId];
+    const { rows } = await pool.query(query, params);
+    res.json(rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'تعذر جلب قائمة الشركات.' });
+  }
+});
+
+module.exports = router;

@@ -1,0 +1,47 @@
+const express = require('express');
+const pool = require('../db/pool');
+const { requireAuth } = require('../middleware/auth');
+const { requireCompanyAccess } = require('../middleware/companyScope');
+const { approveSubcontractorCertificate } = require('../services/postingEngine');
+
+const router = express.Router();
+router.use(requireAuth);
+
+router.get('/', requireCompanyAccess, async (req, res) => {
+  const { rows } = await pool.query(
+    `SELECT * FROM subcontractors WHERE company_id = $1 ORDER BY name`,
+    [req.companyId]
+  );
+  res.json(rows);
+});
+
+router.post('/', requireCompanyAccess, async (req, res) => {
+  const { name, scope_of_work, project_id, contract_value, retention_pct } = req.body;
+  if (!name || !contract_value) {
+    return res.status(400).json({ error: 'اسم المقاول وقيمة العقد مطلوبان.' });
+  }
+  const { rows: [sub] } = await pool.query(
+    `INSERT INTO subcontractors (company_id, name, scope_of_work, project_id, contract_value, retention_pct)
+     VALUES ($1,$2,$3,$4,$5,$6) RETURNING *`,
+    [req.companyId, name, scope_of_work, project_id || null, contract_value, retention_pct || 10]
+  );
+  res.status(201).json(sub);
+});
+
+// POST /api/subcontractors/:id/certificates  { code, value }
+router.post('/:id/certificates', async (req, res) => {
+  const { code, value } = req.body;
+  if (!code || !value) {
+    return res.status(400).json({ error: 'كود وقيمة الشهادة مطلوبان.' });
+  }
+  try {
+    const result = await approveSubcontractorCertificate(
+      req.user.tenantId, req.params.id, { code, value }, req.user.userId
+    );
+    res.json({ message: 'تم اعتماد الشهادة وترحيلها محاسبيًا.', ...result });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+module.exports = router;
