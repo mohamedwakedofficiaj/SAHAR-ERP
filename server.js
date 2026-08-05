@@ -1,20 +1,24 @@
-const { verifyToken } = require('./jwt');
+const express = require('express');
+const cors = require('cors');
+const path = require('path');
+const { bootstrap, authRoutes, companiesRoutes, customersRoutes, suppliersRoutes } = require('./migrate');
 
-function requireAuth(req, res, next) {
-  const header = req.headers.authorization || '';
-  const token = header.startsWith('Bearer ') ? header.slice(7) : null;
+const app = express();
 
-  if (!token) {
-    return res.status(401).json({ error: 'مطلوب تسجيل الدخول (لا يوجد Token).' });
-  }
+app.use(cors());
+app.use(express.json());
 
-  try {
-    const decoded = verifyToken(token);
-    req.user = decoded; // { userId, tenantId, roleName, permissions }
-    next();
-  } catch (err) {
-    return res.status(401).json({ error: 'جلسة غير صالحة أو منتهية، من فضلك سجّل الدخول مرة أخرى.' });
-  }
-}
+// تشغيل الشاشات والواجهة من مجلد public
+app.use(express.static(path.join(__dirname, 'public')));
 
-module.exports = { requireAuth };
+// المسارات الخاصة بالبيانات
+if (authRoutes) app.use('/auth', authRoutes);
+if (companiesRoutes) app.use('/companies', companiesRoutes);
+if (customersRoutes) app.use('/customers', customersRoutes);
+if (suppliersRoutes) app.use('/suppliers', suppliersRoutes);
+
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
