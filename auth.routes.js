@@ -1,3 +1,14 @@
-// Thin re-export used by server.js's boot-time auto-setup (RUN_SETUP=true).
-// The server owns the pool's lifecycle, so this does NOT end the pool.
-module.exports = require('./seedLogic');
+const express = require('express');
+const router = express.Router();
+const pool = require('./db/pool');
+
+router.get('/users', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT id, username, role FROM users');
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+module.exports = router;
