@@ -1,15 +1,14 @@
-const pool = require('./pool');
-const applySeed = require('./seedLogic');
+const express = require('express');
+const router = express.Router();
+const pool = require('./db/pool');
 
-async function run() {
+router.get('/', async (req, res) => {
   try {
-    await applySeed(pool);
+    const result = await pool.query('SELECT * FROM customers');
+    res.json(result.rows);
   } catch (err) {
-    console.error('✘ Seed failed:', err.message);
-    process.exitCode = 1;
-  } finally {
-    await pool.end();
+    res.status(500).json({ error: err.message });
   }
-}
+});
 
-run();
+module.exports = router;
