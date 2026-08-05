@@ -1,511 +1,1707 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>مجموعة الوسام القابضة — نظام تخطيط موارد المؤسسات (Odoo Style ERP)</title>
-  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <style>
-    :root {
-      --primary: #063440;
-      --primary-light: #0d4d5e;
-      --accent: #d4af37;
-      --bg-body: #f1f5f9;
-      --card-bg: #ffffff;
-      --text-main: #1e293b;
-      --muted: #64748b;
-      --border: #cbd5e1;
-      --teal: #0d9488;
-      --red: #e11d48;
-      --green: #16a34a;
-      --amber: #d97706;
-      --radius: 8px;
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#063440">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="الوسام ERP">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>SAHAR ERP</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  :root{
+    --navy-950:#03222b;
+    --navy-900:#063440;
+    --navy-800:#0a4855;
+    --navy-700:#0f5e6e;
+    --ink:#0c2126;
+    --muted:#5b7278;
+    --line:#dbe7e9;
+    --bg:#f2f7f8;
+    --card:#ffffff;
+    --teal:#0e7490;
+    --teal-soft:#e4f1f5;
+    --amber:#c8860a;
+    --amber-soft:#fbf1de;
+    --red:#c4443a;
+    --red-soft:#fbe9e7;
+    --blue:#3b6fd4;
+    --blue-soft:#e9eefc;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:'Tajawal', sans-serif;
+    font-size:14.5px;
+  }
+  .mono{font-family:'IBM Plex Mono', monospace; direction:ltr; display:inline-block;}
+
+  /* ---------- layout shell ---------- */
+  .shell{ display:flex; min-height:100vh; }
+
+  /* ---------- sidebar ---------- */
+  .sidebar{
+    width:248px; flex-shrink:0;
+    background:linear-gradient(180deg, var(--navy-950), var(--navy-900));
+    color:#cfd8ea; display:flex; flex-direction:column;
+    position:sticky; top:0; height:100vh;
+  }
+  .brand{
+    padding:22px 20px 18px; display:flex; align-items:center; gap:10px;
+    border-bottom:1px solid rgba(255,255,255,0.07);
+  }
+  .brand-mark{
+    width:34px; height:34px; border-radius:9px;
+    background:linear-gradient(135deg, var(--teal), #0a6b66);
+    display:flex; align-items:center; justify-content:center;
+    font-weight:900; color:white; font-size:15px; flex-shrink:0;
+  }
+  .brand-text b{display:block; color:#fff; font-size:15px;}
+  .brand-text span{display:block; color:#8a94ab; font-size:11.5px;}
+
+  .company-switch{
+    margin:14px 16px; padding:9px 12px; background:rgba(255,255,255,0.05);
+    border:1px solid rgba(255,255,255,0.08); border-radius:8px; font-size:12.5px;
+    display:flex; justify-content:space-between; align-items:center; color:#b7c1d6;
+    cursor:pointer;
+  }
+  .company-menu-item{
+    padding:11px 14px; font-size:12.5px; color:#cfd8ea; cursor:pointer;
+    border-bottom:1px solid rgba(255,255,255,0.06);
+  }
+  .company-menu-item:last-child{ border-bottom:none; }
+  .company-menu-item:hover{ background:rgba(255,255,255,0.08); color:#fff; }
+  .consolidated-banner{
+    background:var(--blue-soft); color:var(--blue); font-size:12.5px; font-weight:700;
+    padding:8px 16px; border-radius:8px; margin-bottom:16px; display:flex; align-items:center; gap:8px;
+  }
+
+  nav{ flex:1; overflow-y:auto; padding:6px 12px 12px; }
+  .nav-group{ margin-top:16px; }
+  .nav-label{
+    font-size:11px; color:#5f6a82; padding:0 10px 6px; letter-spacing:.4px;
+    text-transform:uppercase;
+  }
+  .nav-item{
+    display:flex; align-items:center; gap:11px; padding:9px 10px; margin-bottom:2px;
+    border-radius:8px; color:#aab4c8; cursor:pointer; font-size:13.5px; font-weight:500;
+    transition:background .12s, color .12s;
+  }
+  .nav-item .ic{width:18px; text-align:center; font-size:15px; flex-shrink:0;}
+  .nav-item:hover{ background:rgba(255,255,255,0.06); color:#fff; }
+  .nav-item.active{ background:var(--teal); color:#fff; }
+  .nav-item .badge{
+    margin-inline-start:auto; background:rgba(255,255,255,0.15); font-size:10.5px;
+    padding:1px 7px; border-radius:20px;
+  }
+
+  .sidebar-foot{
+    padding:14px 18px; border-top:1px solid rgba(255,255,255,0.07);
+    display:flex; align-items:center; gap:10px; font-size:12.5px; color:#8a94ab;
+  }
+  .avatar{
+    width:30px; height:30px; border-radius:50%; background:var(--navy-700);
+    display:flex; align-items:center; justify-content:center; color:#fff; font-weight:700; font-size:12px;
+  }
+
+  /* ---------- main ---------- */
+  .main{ flex:1; min-width:0; display:flex; flex-direction:column; }
+  .topbar{
+    background:var(--card); border-bottom:1px solid var(--line);
+    padding:14px 28px; display:flex; align-items:center; justify-content:space-between;
+    position:sticky; top:0; z-index:5;
+  }
+  .topbar h1{ font-size:19px; margin:0; font-weight:700; }
+  .topbar .sub{ color:var(--muted); font-size:12.5px; margin-top:2px; }
+  .top-actions{ display:flex; gap:10px; align-items:center; }
+  .icon-btn{
+    width:34px; height:34px; border-radius:8px; border:1px solid var(--line); background:#fff;
+    display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--muted);
+  }
+  .btn-primary{
+    background:var(--teal); color:#fff; border:none; padding:9px 16px; border-radius:8px;
+    font-family:inherit; font-weight:700; font-size:13px; cursor:pointer;
+  }
+  .btn-secondary{
+    background:#fff; color:var(--ink); border:1px solid var(--line); padding:9px 14px; border-radius:8px;
+    font-family:inherit; font-weight:600; font-size:13px; cursor:pointer;
+  }
+
+  .content{ padding:24px 28px 60px; flex:1; }
+  .view{ display:none; }
+  .view.active{ display:block; animation:fadeIn .18s ease; }
+  @keyframes fadeIn{ from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:translateY(0);} }
+
+  /* ---------- kpi cards ---------- */
+  .kpi-row{ display:grid; grid-template-columns:repeat(4, 1fr); gap:16px; margin-bottom:22px; }
+  .kpi{
+    background:var(--card); border:1px solid var(--line); border-radius:12px; padding:18px 20px;
+  }
+  .kpi .label{ color:var(--muted); font-size:12.5px; font-weight:500; }
+  .kpi .value{ font-size:25px; font-weight:900; margin-top:6px; }
+  .kpi .delta{ font-size:12px; margin-top:6px; font-weight:600; }
+  .up{ color:var(--teal); } .down{ color:var(--red); }
+
+  /* ---------- panels ---------- */
+  .grid-2{ display:grid; grid-template-columns:1.6fr 1fr; gap:18px; }
+  .panel{
+    background:var(--card); border:1px solid var(--line); border-radius:12px; padding:20px 22px;
+    margin-bottom:18px;
+  }
+  .panel-head{ display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+  .panel-head h3{ margin:0; font-size:15.5px; }
+  .link{ color:var(--teal); font-size:12.5px; font-weight:700; cursor:pointer; text-decoration:none; }
+
+  /* ---------- table ---------- */
+  table{ width:100%; border-collapse:collapse; font-size:13.5px; }
+  th{
+    text-align:right; color:var(--muted); font-weight:600; font-size:12px;
+    padding:8px 10px; border-bottom:1px solid var(--line); white-space:nowrap;
+  }
+  td{ padding:11px 10px; border-bottom:1px solid #eef1f5; vertical-align:middle; }
+  tr:last-child td{ border-bottom:none; }
+  tr.row-clickable:hover{ background:#fafbfd; cursor:pointer; }
+
+  .pill{
+    display:inline-block; padding:3px 11px; border-radius:20px; font-size:11.5px; font-weight:700;
+  }
+  .pill-green{ background:var(--teal-soft); color:var(--teal); }
+  .pill-amber{ background:var(--amber-soft); color:var(--amber); }
+  .pill-red{ background:var(--red-soft); color:var(--red); }
+  .pill-blue{ background:var(--blue-soft); color:var(--blue); }
+
+  .bar-track{ background:#eef0f4; border-radius:20px; height:7px; overflow:hidden; width:90px; }
+  .bar-fill{ height:100%; border-radius:20px; background:var(--teal); }
+
+  /* ---------- unit grid (real estate) ---------- */
+  .unit-grid{ display:grid; grid-template-columns:repeat(10, 1fr); gap:6px; }
+  .unit-cell{
+    aspect-ratio:1; border-radius:6px; display:flex; align-items:center; justify-content:center;
+    font-size:10.5px; font-weight:700; color:#fff; cursor:pointer; position:relative;
+  }
+  .u-sold{ background:var(--teal); } .u-reserved{ background:var(--amber); }
+  .u-available{ background:var(--blue); } .u-blocked{ background:#b8bfcc; }
+  .legend{ display:flex; gap:16px; margin-top:14px; font-size:12px; color:var(--muted); flex-wrap:wrap; }
+  .legend span{ display:flex; align-items:center; gap:6px; }
+  .dot{ width:10px; height:10px; border-radius:3px; display:inline-block; }
+
+  /* ---------- breadcrumb / tabs ---------- */
+  .tabs{ display:flex; gap:4px; border-bottom:1px solid var(--line); margin-bottom:18px; }
+  .tab{
+    padding:10px 16px; font-size:13.5px; font-weight:600; color:var(--muted); cursor:pointer;
+    border-bottom:2px solid transparent; margin-bottom:-1px;
+  }
+  .tab.active{ color:var(--ink); border-color:var(--teal); }
+
+  .empty-state{
+    text-align:center; padding:50px 20px; color:var(--muted);
+  }
+  .empty-state .ic{ font-size:34px; margin-bottom:10px; }
+
+  ::-webkit-scrollbar{ width:8px; height:8px; }
+  ::-webkit-scrollbar-thumb{ background:#c7cddb; border-radius:20px; }
+
+  /* ---------- generic app modal ---------- */
+  .app-modal-backdrop{
+    position:fixed; inset:0; background:rgba(12,20,36,0.55); z-index:50;
+    align-items:center; justify-content:center; display:flex;
+  }
+  .app-modal{
+    background:#fff; width:560px; max-width:92vw; max-height:88vh; overflow-y:auto;
+    border-radius:14px; padding:26px 28px;
+  }
+  .app-modal-head{ display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; }
+  .app-modal-head h2{ margin:0; font-size:18px; }
+  .form-grid{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .form-grid label{ display:block; font-size:12px; color:var(--muted); margin-bottom:4px; }
+  .form-grid input, .form-grid select{
+    width:100%; padding:9px 10px; border:1px solid var(--line); border-radius:8px;
+    font-family:inherit; font-size:13.5px;
+  }
+  .app-modal-actions{ display:flex; justify-content:flex-end; gap:10px; margin-top:22px; }
+
+  /* ================= MOBILE RESPONSIVE ================= */
+  #mobile-menu-btn{
+    display:none; position:fixed; top:14px; right:14px; z-index:170;
+    width:42px; height:42px; border-radius:10px; background:var(--navy-900); color:#fff;
+    align-items:center; justify-content:center; font-size:19px; box-shadow:0 4px 14px rgba(0,0,0,0.25);
+    cursor:pointer;
+  }
+  #sidebar-backdrop{
+    display:none; position:fixed; inset:0; background:rgba(3,15,20,0.55); z-index:140;
+  }
+  #sidebar-backdrop.show{ display:block; }
+
+  @media (max-width: 860px){
+    #mobile-menu-btn{ display:flex; }
+    .shell{ display:block; }
+    .sidebar{
+      position:fixed; top:0; right:0; height:100vh; width:78vw; max-width:300px;
+      transform:translateX(100%); transition:transform .25s ease; z-index:150;
     }
+    .sidebar.open{ transform:translateX(0); }
+    .main{ width:100%; }
+    .topbar{ padding:12px 16px 12px 60px; flex-wrap:wrap; gap:10px; }
+    .topbar h1{ font-size:16.5px; }
+    .topbar .sub{ font-size:11.5px; }
+    .top-actions{ width:100%; justify-content:flex-start; flex-wrap:wrap; }
+    .content{ padding:14px 12px 40px; }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Tajawal', sans-serif; }
-    body { background-color: var(--bg-body); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; direction: rtl; }
+    .kpi-row{ grid-template-columns:1fr 1fr !important; gap:10px; }
+    .kpi{ padding:13px 14px; }
+    .kpi .value{ font-size:19px; }
 
-    /* Login Overlay */
-    #login-screen {
-      position: fixed; inset: 0; background: rgba(6, 52, 64, 0.96); z-index: 9999;
-      display: flex; align-items: center; justify-content: center;
-    }
-    .login-card { background: white; padding: 40px; border-radius: 12px; width: 440px; box-shadow: 0 25px 50px rgba(0,0,0,0.3); text-align: center; }
-    .login-card h2 { color: var(--primary); margin-bottom: 8px; font-weight: 800; }
-    .login-card p { color: var(--muted); margin-bottom: 24px; font-size: 14px; }
-    .form-group { margin-bottom: 16px; text-align: right; }
-    .form-group label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 6px; color: var(--primary); }
-    .form-control { width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: var(--radius); font-size: 14px; outline: none; transition: 0.3s; background: #fff; }
-    .form-control:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.15); }
-    .btn { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: var(--radius); font-weight: 700; cursor: pointer; transition: 0.3s; font-size: 14px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
-    .btn:hover { background: var(--primary-light); }
-    .btn-accent { background: var(--accent); color: #111; }
-    .btn-accent:hover { background: #c19b2e; }
-    .btn-danger { background: var(--red); color: white; }
-    .btn-success { background: var(--green); color: white; }
+    .form-grid{ grid-template-columns:1fr !important; }
 
-    /* Sidebar */
-    aside { width: 280px; background: var(--primary); color: white; display: flex; flex-direction: column; justify-content: space-between; z-index: 100; }
-    .sidebar-header { padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); }
-    .sidebar-header h1 { font-size: 17px; font-weight: 900; color: white; }
-    .sidebar-header span { font-size: 11px; color: var(--accent); display: block; margin-top: 4px; }
-    .sidebar-menu { list-style: none; padding: 12px; overflow-y: auto; flex-grow: 1; }
-    .nav-item { padding: 11px 14px; border-radius: var(--radius); margin-bottom: 4px; cursor: pointer; display: flex; align-items: center; gap: 12px; font-size: 13px; color: rgba(255,255,255,0.8); transition: 0.2s; }
-    .nav-item:hover, .nav-item.active { background: rgba(255,255,255,0.12); color: white; font-weight: 700; }
-    .sidebar-footer { padding: 14px; border-top: 1px solid rgba(255,255,255,0.1); font-size: 11px; text-align: center; color: var(--muted); }
+    .grid-2{ display:block; }
 
-    /* Main Wrapper */
-    .main-wrapper { flex-grow: 1; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
-    
-    /* Header */
-    header { background: white; border-bottom: 1px solid var(--border); padding: 0 24px; height: 65px; display: flex; align-items: center; justify-content: space-between; z-index: 90; }
-    .company-switcher { position: relative; }
-    .company-btn { background: #f8fafc; border: 1px solid var(--border); padding: 8px 14px; border-radius: var(--radius); cursor: pointer; font-weight: 700; display: flex; align-items: center; gap: 8px; font-size: 13px; }
-    .company-dropdown { position: absolute; top: 110%; right: 0; background: white; border: 1px solid var(--border); border-radius: var(--radius); box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 280px; display: none; z-index: 200; }
-    .company-option { padding: 12px 16px; cursor: pointer; font-size: 13px; border-bottom: 1px solid var(--border); transition: 0.2s; }
-    .company-option:hover { background: #f1f5f9; color: var(--teal); font-weight: 700; }
+    .panel{ padding:14px 14px; }
+    .panel-head{ flex-direction:column; align-items:flex-start; gap:8px; }
+    .panel-head h3{ font-size:14px; }
 
-    /* Content Area */
-    .content-area { flex-grow: 1; overflow-y: auto; padding: 24px; background: var(--bg-body); }
-    .view { display: none; }
-    .view.active { display: block; animation: fadeIn 0.2s ease; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+    table{ display:block; overflow-x:auto; white-space:nowrap; }
+    th, td{ font-size:12.5px; }
 
-    /* Cards & Grids */
-    .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px; }
-    .kpi-card { background: var(--card-bg); padding: 18px; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
-    .kpi-card span { font-size: 11px; color: var(--muted); font-weight: 700; display: block; margin-bottom: 6px; }
-    .kpi-card h3 { font-size: 20px; font-weight: 800; color: var(--primary); }
-    
-    .card { background: var(--card-bg); border-radius: var(--radius); border: 1px solid var(--border); padding: 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
-    .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
-    .card-header h2 { font-size: 15px; font-weight: 800; color: var(--primary); }
+    .unit-grid{ grid-template-columns:repeat(5, 1fr) !important; }
 
-    /* Tables */
-    .table-container { width: 100%; overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; text-align: right; font-size: 12px; }
-    th, td { padding: 10px 14px; border-bottom: 1px solid var(--border); }
-    th { background: #f8fafc; color: var(--primary); font-weight: 800; }
-    tr:hover { background: #fcfdfe; }
-    .mono { font-family: monospace; font-weight: 600; }
+    .app-modal{ width:94vw; padding:20px 18px; max-height:85vh; }
+    .app-modal-actions{ flex-wrap:wrap; }
+    .app-modal-actions button{ flex:1; }
 
-    /* Tabs Inside Views */
-    .sub-tabs { display: flex; gap: 6px; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
-    .tab { padding: 8px 14px; background: #e2e8f0; border-radius: var(--radius); cursor: pointer; font-size: 12px; font-weight: 700; border: none; transition: 0.2s; color: var(--text-main); }
-    .tab.active { background: var(--primary); color: white; }
+    #login-screen > div{ width:92vw; padding:28px 22px; }
 
-    /* Pills & Badges */
-    .pill { padding: 3px 8px; border-radius: 20px; font-size: 10px; font-weight: 700; display: inline-block; }
-    .pill-green { background: #dcfce7; color: var(--green); }
-    .pill-red { background: #fee2e2; color: var(--red); }
-    .pill-amber { background: #fef3c7; color: var(--amber); }
-    .pill-blue { background: #e0f2fe; color: #0284c7; }
+    .tabs{ overflow-x:auto; white-space:nowrap; flex-wrap:nowrap; }
+    .tab{ flex-shrink:0; }
 
-    /* Input Modal Popups */
-    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; display: none; align-items: center; justify-content: center; }
-    .modal-card { background: white; padding: 24px; border-radius: 12px; width: 550px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 25px rgba(0,0,0,0.15); }
-    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
-    .modal-header h3 { color: var(--primary); font-size: 16px; font-weight: 800; }
-    .close-modal { cursor: pointer; font-size: 18px; font-weight: bold; color: var(--muted); }
-
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .actions-bar { display: flex; gap: 8px; }
-  </style>
+    .company-switch{ margin:12px 14px; }
+  }
+</style>
 </head>
 <body>
 
-  <!-- شاشة تسجيل الدخول -->
-  <div id="login-screen">
-    <div class="login-card">
-      <h2>مجموعة الوسام القابضة</h2>
-      <p>نظام تخطيط موارد المؤسسات المتكامل (Odoo ERP Engine)</p>
-      <div class="form-group">
-        <label>المستخدم:</label>
-        <select id="login-username" class="form-control">
-          <option value="Mohamed Waked">Mohamed Waked (Founder | SVIP)</option>
-          <option value="مدير الحسابات">مدير الحسابات والمالية</option>
-          <option value="مسؤول المخازن">مسؤول المخازن والتوريدات</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>كلمة المرور:</label>
-        <input type="password" id="login-password" class="form-control" value="1234">
-      </div>
-      <button class="btn btn-accent" style="width:100%;" onclick="attemptLogin()">دخول النظام</button>
+<!-- ===== LOGIN SCREEN ===== -->
+<div id="login-screen" style="position:fixed; inset:0; z-index:200; background:linear-gradient(135deg, var(--navy-950), var(--navy-800)); display:flex; align-items:center; justify-content:center;">
+  <div style="background:#fff; width:400px; max-width:92vw; border-radius:16px; padding:36px 32px; box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+    <div style="text-align:center; margin-bottom:24px;">
+      <div style="width:52px; height:52px; border-radius:14px; background:linear-gradient(135deg, var(--teal), var(--navy-800)); display:flex; align-items:center; justify-content:center; font-weight:900; color:#fff; font-size:22px; margin:0 auto 12px;">E</div>
+      <h2 style="margin:0; font-size:19px;">مجموعة الوسام القابضة</h2>
+      <div style="color:var(--muted); font-size:12.5px; margin-top:4px;">تسجيل الدخول للنظام</div>
     </div>
+    <div style="margin-bottom:14px;">
+      <label style="display:block; font-size:12px; color:var(--muted); margin-bottom:5px;">اسم المستخدم</label>
+      <select id="login-username" style="width:100%; padding:10px; border:1px solid var(--line); border-radius:8px; font-family:inherit;"></select>
+    </div>
+    <div style="margin-bottom:18px;">
+      <label style="display:block; font-size:12px; color:var(--muted); margin-bottom:5px;">كلمة المرور</label>
+      <input type="password" id="login-password" placeholder="••••••••" style="width:100%; padding:10px; border:1px solid var(--line); border-radius:8px; font-family:inherit;">
+      <div style="font-size:11px; color:var(--muted); margin-top:5px;">للتجربة: كلمة المرور لكل المستخدمين هي 1234</div>
+    </div>
+    <div id="login-error" style="display:none; background:var(--red-soft); color:var(--red); padding:8px 12px; border-radius:8px; font-size:12.5px; margin-bottom:14px;"></div>
+    <button class="btn-primary" style="width:100%; padding:11px;" onclick="attemptLogin()">دخول</button>
   </div>
+</div>
 
-  <!-- القائمة الجانبية -->
-  <aside>
-    <div class="sidebar-header">
-      <h1>مجموعة الوسام القابضة</h1>
-      <span>إدارة موحدة وشاملة</span>
+<!-- ===== MOBILE MENU TOGGLE ===== -->
+<div id="mobile-menu-btn" onclick="toggleMobileSidebar()">☰</div>
+<div id="sidebar-backdrop" onclick="toggleMobileSidebar()"></div>
+
+<div class="shell">
+
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="sidebar" id="app-sidebar">
+    <div class="brand">
+      <div class="brand-mark">E</div>
+      <div class="brand-text"><b>SAHAR ERP</b></div>
     </div>
-    <ul class="sidebar-menu">
-      <li class="nav-item active" data-view="dashboard">📊 لوحة المؤشرات الشاملة</li>
-      <li class="nav-item" data-view="purchases">🛒 سجل المشتريات (مجمّع وشهري)</li>
-      <li class="nav-item" data-view="inventory">📦 شيت جرد المخازن والأخشاب</li>
-      <li class="nav-item" data-view="expenses">💸 مصروفات المصانع ومراكز التكلفة</li>
-      <li class="nav-item" data-view="finance">💰 الإدارة المالية والمحاسبة (GL/AP/AR)</li>
-      <li class="nav-item" data-view="const">🏗️ المقاولات والتشييد</li>
-      <li class="nav-item" data-view="re">🏢 الاستثمار العقاري</li>
-    </ul>
-    <div class="sidebar-footer">جميع الحقوق محفوظة © 2026</div>
+
+    <div class="company-switch" onclick="toggleCompanyMenu()" style="position:relative; cursor:pointer;">
+      <span>🏢 <span id="active-company-label">مجموعة الوسام القابضة (مجمّع)</span></span>
+      <span>▾</span>
+      <div id="company-menu" style="display:none; position:absolute; top:110%; right:0; left:0; background:var(--navy-800); border:1px solid rgba(255,255,255,0.1); border-radius:8px; overflow:hidden; z-index:20;">
+        <div class="company-menu-item" onclick="setCompany('all', 'مجموعة الوسام القابضة (مجمّع)')">🏢 المجموعة (مجمّع) — كل الشركات</div>
+        <div class="company-menu-item" onclick="setCompany('const', 'الوسام للمقاولات العامة')">🏗️ الوسام للمقاولات العامة</div>
+        <div class="company-menu-item" onclick="setCompany('re', 'الوسام للتطوير العقاري')">🏙️ الوسام للتطوير العقاري</div>
+        <div class="company-menu-item" onclick="setCompany('inv', 'الوسام للتوريدات والمقاولات')">📦 الوسام للتوريدات والمقاولات</div>
+      </div>
+    </div>
+
+    <nav>
+      <div class="nav-group">
+        <div class="nav-item active" data-view="dashboard"><span class="ic">📊</span> الرئيسية</div>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-label">المالية</div>
+        <div class="nav-item" data-view="finance"><span class="ic">💰</span> المحاسبة والخزينة</div>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-label">المقاولات</div>
+        <div class="nav-item" data-view="construction"><span class="ic">🏗️</span> المشاريع الإنشائية <span class="badge">6</span></div>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-label">التطوير العقاري</div>
+        <div class="nav-item" data-view="realestate"><span class="ic">🏙️</span> الوحدات والعملاء</div>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-label">أخرى</div>
+        <div class="nav-item" data-view="inventory"><span class="ic">📦</span> المخازن والمشتريات</div>
+        <div class="nav-item" data-view="hr"><span class="ic">👥</span> الموارد البشرية</div>
+        <div class="nav-item" data-view="reports"><span class="ic">📈</span> التقارير</div>
+      </div>
+    </nav>
+
+    <div class="sidebar-foot" style="cursor:pointer;" onclick="if(confirm('تسجيل الخروج؟')) logout();">
+      <div class="avatar" id="user-avatar">مو</div>
+      <div>
+        <div style="color:#e4e8ef; font-weight:600;" id="user-name-label">محمد واكد</div>
+        <div id="user-role-label">مدير تجاري</div>
+      </div>
+    </div>
   </aside>
 
-  <!-- الحاوية الرئيسية -->
-  <div class="main-wrapper">
-    <!-- الشريط العلوي -->
-    <header>
-      <div class="header-right">
-        <div class="company-switcher">
-          <div class="company-btn" onclick="toggleCompanyMenu()">
-            <span id="active-company-label">مجموعة الوسام القابضة (مجمّع)</span>
-            <span>▼</span>
-          </div>
-          <div class="company-dropdown" id="company-menu">
-            <div class="company-option" onclick="setCompany('all', 'مجموعة الوسام القابضة (مجمّع)')">🌐 عرض مجمّع لكل الشركات</div>
-            <div class="company-option" onclick="setCompany('const', 'شركة الوسام للمقاولات العامة')">🏗️ الوسام للمقاولات العامة</div>
-            <div class="company-option" onclick="setCompany('re', 'شركة الوسام للاستثمار العقاري')">🏢 الوسام للاستثمار العقاري</div>
-            <div class="company-option" onclick="setCompany('inv', 'شركة الوسام للتجارة والتوريد')">📦 الوسام للتجارة والتوريد والمصانع</div>
-          </div>
+  <!-- ============ MAIN ============ -->
+  <div class="main">
+
+    <!-- ===== DASHBOARD VIEW ===== -->
+    <div class="view active" id="view-dashboard">
+      <div class="topbar">
+        <div><h1>لوحة المتابعة التنفيذية</h1><div class="sub">آخر تحديث: منذ 4 دقائق</div></div>
+        <div class="top-actions">
+          <div class="icon-btn" onclick="openModal('modal-notifications')">🔔</div>
+          <div class="icon-btn" onclick="openModal('modal-settings')">⚙️</div>
+          <button class="btn-primary" onclick="openModal('modal-newop')">+ عملية جديدة</button>
         </div>
       </div>
-      <div class="header-left" style="display:flex; align-items:center; gap:12px;">
-        <span id="user-display" style="font-size:13px; font-weight:700; color:var(--primary);">Mohamed Waked</span>
-        <button class="btn btn-danger" style="padding:6px 12px; font-size:12px;" onclick="logout()">خروج</button>
-      </div>
-    </header>
+      <div class="content">
 
-    <!-- محتوى الشاشات -->
-    <div class="content-area">
+        <div class="consolidated-banner" id="scope-banner">📊 عرض مجمّع لكل شركات المجموعة الثلاث</div>
 
-      <!-- 1. لوحة المؤشرات -->
-      <div id="view-dashboard" class="view active">
-        <div class="kpi-grid">
-          <div class="kpi-card"><span>إجمالي الإيرادات</span><h3 id="dash-rev">14,250,000 ج.م</h3></div>
-          <div class="kpi-card"><span>النقدية والسيولة</span><h3 id="dash-cash">5,820,000 ج.م</h3></div>
-          <div class="kpi-card"><span>إجمالي المصروفات</span><h3 id="dash-exp">8,430,000 ج.م</h3></div>
-          <div class="kpi-card"><span>أصناف المخزون المسجلة</span><h3 id="dash-inv-count">0 صنف</h3></div>
+        <div class="kpi-row">
+          <div class="kpi"><div class="label">إجمالي الإيرادات (الشهر)</div><div class="value" id="kpi-revenue">18.4M<span style="font-size:13px;color:var(--muted)"> ج.م</span></div><div class="delta up">▲ 6.2% عن الشهر الماضي</div></div>
+          <div class="kpi"><div class="label">النقدية المتاحة</div><div class="value" id="kpi-cash">4.9M<span style="font-size:13px;color:var(--muted)"> ج.م</span></div><div class="delta down">▼ 2.1% خلال الأسبوع</div></div>
+          <div class="kpi"><div class="label">تكلفة المشاريع الجارية</div><div class="value" id="kpi-cost">62.3M<span style="font-size:13px;color:var(--muted)"> ج.م</span></div><div class="delta up">▲ ضمن الميزانية</div></div>
+          <div class="kpi"><div class="label">الوحدات المتاحة للبيع</div><div class="value" id="kpi-units">37</div><div class="delta up">من إجمالي 210 وحدة</div></div>
         </div>
-        <div class="card">
-          <div class="card-header">
-            <h2>متابعة سريعة لحركة التدفقات والعمليات</h2>
-            <div class="actions-bar">
-              <button class="btn btn-accent" onclick="openModal('expenseModal')">+ تسجيل مصروف جديد</button>
-              <button class="btn" onclick="openModal('purchaseModal')">+ تسجيل فاتورة مشتريات</button>
+
+        <div class="grid-2" style="margin-bottom:0;">
+          <div class="panel">
+            <div class="panel-head"><h3 id="chartA-title">تحليل الأداء</h3></div>
+            <div id="chart-bar-container" style="min-height:280px;"></div>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><h3 id="chartB-title">التوزيع</h3></div>
+            <div id="chart-donut-container" style="min-height:280px;"></div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div>
+            <div class="panel">
+              <div class="panel-head"><h3>أداء المشاريع الإنشائية</h3><a class="link" data-view="construction">عرض الكل ←</a></div>
+              <table>
+                <tr><th>المشروع</th><th>نسبة الإنجاز</th><th>الميزانية</th><th>الفعلي</th><th>الحالة</th></tr>
+                <tr class="row-clickable"><td>برج النيل التجاري</td><td><div style="display:flex; align-items:center; gap:8px;"><div class="bar-track"><div class="bar-fill" style="width:72%"></div></div><span>72%</span></div></td><td class="mono">28.0M</td><td class="mono">21.3M</td><td><span class="pill pill-green">ضمن الخطة</span></td></tr>
+                <tr class="row-clickable"><td>كمبوند الياسمين — المرحلة 2</td><td><div style="display:flex; align-items:center; gap:8px;"><div class="bar-track"><div class="bar-fill" style="width:45%; background:var(--amber)"></div></div><span>45%</span></div></td><td class="mono">40.0M</td><td class="mono">21.9M</td><td><span class="pill pill-amber">تأخير طفيف</span></td></tr>
+                <tr class="row-clickable"><td>مجمع مكاتب الشيخ زايد</td><td><div style="display:flex; align-items:center; gap:8px;"><div class="bar-track"><div class="bar-fill" style="width:91%"></div></div><span>91%</span></div></td><td class="mono">15.5M</td><td class="mono">15.9M</td><td><span class="pill pill-red">تجاوز ميزانية</span></td></tr>
+              </table>
+            </div>
+
+            <div class="panel">
+              <div class="panel-head"><h3>آخر القيود المحاسبية</h3><a class="link">دفتر الأستاذ ←</a></div>
+              <table>
+                <tr><th>المستند</th><th>المصدر</th><th>مدين</th><th>دائن</th><th>الحالة</th></tr>
+                <tr><td>شهادة إنجاز #PC-2291</td><td>المقاولات</td><td class="mono">500,000</td><td class="mono">500,000</td><td><span class="pill pill-green">مرحّل</span></td></tr>
+                <tr><td>تحصيل قسط — وحدة B-114</td><td>التطوير العقاري</td><td class="mono">185,000</td><td class="mono">185,000</td><td><span class="pill pill-green">مرحّل</span></td></tr>
+                <tr><td>إذن صرف مواد #GI-1042</td><td>المخازن</td><td class="mono">96,400</td><td class="mono">96,400</td><td><span class="pill pill-amber">بانتظار الاعتماد</span></td></tr>
+              </table>
             </div>
           </div>
-          <p style="font-size:13px; color:var(--muted); margin-bottom:12px;">النظام يعمل بشكل تفاعلي تام، جميع الإدخالات والبيانات تظهر فوراً في السجلات والتقارير أدناه.</p>
-          <div class="table-container"><table id="dash-summary-table"></table></div>
-        </div>
-      </div>
 
-      <!-- 2. سجل المشتريات (شهري وسنوي) -->
-      <div id="view-purchases" class="view">
-        <div class="card">
-          <div class="card-header">
-            <h2>سجل المشتريات (إدخال يومي يتجمع شهرياً وسنوياً)</h2>
-            <button class="btn btn-accent" onclick="openModal('purchaseModal')">+ إضافة عملية شراء جديدة</button>
-          </div>
-          <div class="table-container">
-            <table id="purchases-table"></table>
-          </div>
-        </div>
-      </div>
-
-      <!-- 3. شيت جرد المخازن والأخشاب -->
-      <div id="view-inventory" class="view">
-        <div class="card">
-          <div class="card-header">
-            <h2>شيت الجرد الميداني (أخشاب سويد وبياض، مقاسات م/سم، نولون 18000)</h2>
-            <button class="btn btn-accent" onclick="openModal('inventoryModal')">+ إضافة بند جرد أو خشب جديد</button>
-          </div>
-          <div class="table-container">
-            <table id="inventory-table"></table>
+          <div>
+            <div class="panel">
+              <div class="panel-head"><h3>موافقات معلّقة</h3></div>
+              <table>
+                <tr><td>أمر شراء PO-3381</td><td><span class="pill pill-amber">بانتظارك</span></td></tr>
+                <tr><td>خصم عقد وحدة C-08</td><td><span class="pill pill-amber">بانتظارك</span></td></tr>
+                <tr><td>أمر تغيير — مشروع الياسمين</td><td><span class="pill pill-blue">مع المهندس</span></td></tr>
+              </table>
+            </div>
+            <div class="panel">
+              <div class="panel-head"><h3>تنبيهات</h3></div>
+              <div style="font-size:13px; line-height:2.1;">
+                🔴 تجاوز ميزانية مشروع الشيخ زايد بنسبة 2.6%<br>
+                🟠 5 عملاء متأخرين في سداد الأقساط<br>
+                🟠 عقد إيجار معدات ينتهي خلال 9 أيام
+              </div>
+            </div>
           </div>
         </div>
       </div>
+    </div>
 
-      <!-- 4. مصروفات المصانع ومراكز التكلفة -->
-      <div id="view-expenses" class="view">
-        <div class="card">
-          <div class="card-header">
-            <h2>سجل المصروفات التشغيلية والإدارية ومراكز التكلفة الشهرية</h2>
-            <button class="btn btn-accent" onclick="openModal('expenseModal')">+ تسجيل مصروف شهري جديد</button>
+    <!-- ===== FINANCE VIEW ===== -->
+    <div class="view" id="view-finance">
+      <div class="topbar">
+        <div><h1>المحاسبة والخزينة</h1><div class="sub">دفتر الأستاذ الموحّد — كل الموديولات</div></div>
+        <div class="top-actions"><button class="btn-secondary" onclick="exportTableToExcel('trial-table','ميزان_المراجعة')">تصدير Excel</button><button class="btn-primary" onclick="openJournalModal()">+ قيد يومية</button></div>
+      </div>
+      <div class="content">
+        <div class="tabs" id="finance-tabs">
+          <div class="tab active" data-fin="trial">ميزان المراجعة</div>
+          <div class="tab" data-fin="ar">حسابات العملاء</div>
+          <div class="tab" data-fin="ap">حسابات الموردين</div>
+          <div class="tab" data-fin="treasury">الخزينة والبنوك</div>
+          <div class="tab" data-fin="assets">الأصول الثابتة</div>
+          <div class="tab" data-fin="expenses">المصروفات اليومية</div>
+          <div class="tab" data-fin="custody">العهدة اليومية</div>
+        </div>
+
+        <div class="fin-pane" id="fin-trial">
+          <div class="panel" style="padding-bottom:14px;">
+            <div class="panel-head" style="margin-bottom:10px;"><h3>تصفية بالفترة</h3></div>
+            <div style="display:flex; gap:12px; align-items:end; flex-wrap:wrap;">
+              <div>
+                <label style="display:block; font-size:12px; color:var(--muted); margin-bottom:4px;">من تاريخ</label>
+                <input type="date" id="dateFrom" value="2026-07-01" style="padding:8px 10px; border:1px solid var(--line); border-radius:8px; font-family:inherit; font-size:13px;">
+              </div>
+              <div>
+                <label style="display:block; font-size:12px; color:var(--muted); margin-bottom:4px;">إلى تاريخ</label>
+                <input type="date" id="dateTo" value="2026-07-22" style="padding:8px 10px; border:1px solid var(--line); border-radius:8px; font-family:inherit; font-size:13px;">
+              </div>
+              <div>
+                <label style="display:block; font-size:12px; color:var(--muted); margin-bottom:4px;">السنة المالية / الفترة</label>
+                <select id="fiscalPeriod" style="padding:8px 10px; border:1px solid var(--line); border-radius:8px; font-family:inherit; font-size:13px;">
+                  <option>2026 — يوليو (الفترة 7)</option>
+                  <option>2026 — يونيو (الفترة 6)</option>
+                  <option>2026 — مايو (الفترة 5)</option>
+                  <option>2025 — السنة المالية كاملة</option>
+                </select>
+              </div>
+              <button class="btn-primary" onclick="applyPeriodFilter()">تطبيق</button>
+              <span id="periodFilterMsg" style="font-size:12px; color:var(--teal); font-weight:700;"></span>
+            </div>
           </div>
-          <div class="table-container">
+
+          <div class="panel" id="trial-panel">
+            <div class="panel-head"><h3 id="trialTitle">ميزان المراجعة</h3>
+              <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+                <select id="projectFilter" onchange="applyProjectFilter()" style="padding:7px 10px; border:1px solid var(--line); border-radius:8px; font-family:inherit; font-size:12.5px;">
+                  <option value="all">كل المشاريع</option>
+                  <option value="برج النيل التجاري">برج النيل التجاري</option>
+                  <option value="كمبوند الياسمين">كمبوند الياسمين</option>
+                  <option value="مجمع مكاتب الشيخ زايد">مجمع مكاتب الشيخ زايد</option>
+                </select>
+                <a class="link" onclick="exportTableToExcel('trial-table','ميزان_المراجعة')">Excel ⬇</a>
+                <a class="link" onclick="printPanelAsPDF('trial-panel','ميزان المراجعة')">PDF 🖨</a>
+              </div>
+            </div>
+            <div id="intercompany-note" style="display:none; background:var(--blue-soft); color:var(--blue); border-radius:10px; padding:10px 14px; font-size:12.5px; margin-bottom:12px;"></div>
+            <table id="trial-table"></table>
+          </div>
+        </div>
+
+        <div class="fin-pane" id="fin-ar" style="display:none">
+          <div class="kpi-row" style="grid-template-columns:repeat(3,1fr); margin-bottom:16px;">
+            <div class="kpi"><div class="label">إجمالي أرصدة العملاء</div><div class="value">5.65M</div></div>
+            <div class="kpi"><div class="label">متأخر أكثر من 30 يوم</div><div class="value" style="color:var(--red)">1.12M</div></div>
+            <div class="kpi"><div class="label">متوقع تحصيله هذا الشهر</div><div class="value" style="color:var(--teal)">2.40M</div></div>
+          </div>
+          <div class="panel" id="ar-panel">
+            <div class="panel-head"><h3>أعمار الديون — العملاء</h3>
+              <div style="display:flex; gap:14px; flex-wrap:wrap;">
+                <a class="link" onclick="openARStatementPicker()">كشف حساب عميل ▾</a>
+                <a class="link" onclick="openModal('modal-arcollect')">+ تسجيل تحصيل</a>
+                <a class="link" onclick="openModal('modal-newcustomer')">+ عميل جديد</a>
+                <a class="link" onclick="exportTableToExcel('ar-table','أعمار_ديون_العملاء')">Excel ⬇</a>
+                <a class="link" onclick="printPanelAsPDF('ar-panel','أعمار الديون — العملاء')">PDF 🖨</a>
+              </div>
+            </div>
+            <table id="ar-table"></table>
+          </div>
+        </div>
+
+        <div class="fin-pane" id="fin-ap" style="display:none">
+          <div class="kpi-row" style="grid-template-columns:repeat(3,1fr); margin-bottom:16px;">
+            <div class="kpi"><div class="label">إجمالي أرصدة الموردين</div><div class="value">11.0M</div></div>
+            <div class="kpi"><div class="label">مستحق خلال 7 أيام</div><div class="value" style="color:var(--amber)">2.65M</div></div>
+            <div class="kpi"><div class="label">ضمانات محتجزة (Retention)</div><div class="value">1.9M</div></div>
+          </div>
+          <div class="panel" id="ap-panel">
+            <div class="panel-head"><h3>أرصدة الموردين والمقاولين من الباطن</h3>
+              <div style="display:flex; gap:14px; flex-wrap:wrap;">
+                <a class="link" onclick="openPaySchedule()">جدول سداد ▾</a>
+                <a class="link" onclick="openModal('modal-appay')">+ تسجيل دفعة</a>
+                <a class="link" onclick="openModal('modal-newsupplier')">+ مورد جديد</a>
+                <a class="link" onclick="exportTableToExcel('ap-table','أرصدة_الموردين')">Excel ⬇</a>
+                <a class="link" onclick="printPanelAsPDF('ap-panel','أرصدة الموردين والمقاولين من الباطن')">PDF 🖨</a>
+              </div>
+            </div>
+            <table id="ap-table"></table>
+          </div>
+        </div>
+
+        <div class="fin-pane" id="fin-treasury" style="display:none">
+          <div class="kpi-row" style="grid-template-columns:repeat(3,1fr); margin-bottom:16px;">
+            <div class="kpi"><div class="label">إجمالي السيولة</div><div class="value" id="kpi-liquidity">4.9M</div></div>
+            <div class="kpi"><div class="label">شيكات تحت التحصيل</div><div class="value">1.3M</div></div>
+            <div class="kpi"><div class="label">شيكات مستحقة الدفع</div><div class="value" style="color:var(--red)">2.1M</div></div>
+          </div>
+          <div class="panel" id="treasury-panel">
+            <div class="panel-head"><h3>أرصدة البنوك</h3>
+              <div style="display:flex; gap:14px; flex-wrap:wrap;">
+                <a class="link" onclick="openModal('modal-deposit')">+ إيداع</a>
+                <a class="link" onclick="openModal('modal-withdraw')" style="color:var(--red);">+ صرف / تحويل</a>
+                <a class="link" onclick="openNewBankModal()">+ بنك جديد</a>
+                <a class="link" onclick="exportTableToExcel('banks-table','أرصدة_البنوك')">Excel ⬇</a>
+              </div>
+            </div>
+            <table id="banks-table"></table>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head"><h3>آخر حركات الخزينة</h3></div>
+            <table id="treasury-moves">
+              <tr><th>التاريخ</th><th>البنك</th><th>البيان</th><th>إيداع</th><th>صرف</th></tr>
+              <tr><td>2026-07-20</td><td>البنك الأهلي المصري</td><td>تحصيل قسط B-305</td><td class="mono">2,750,000</td><td class="mono">0</td></tr>
+              <tr><td>2026-07-18</td><td>بنك مصر</td><td>دفعة لشركة المتحدة للحديد</td><td class="mono">0</td><td class="mono">1,800,000</td></tr>
+            </table>
+          </div>
+        </div>
+
+        <div class="fin-pane" id="fin-assets" style="display:none">
+          <div class="panel">
+            <div class="panel-head"><h3>سجل الأصول الثابتة</h3><a class="link" onclick="openModal('modal-newasset')">+ إضافة أصل</a></div>
+            <table id="assets-table">
+              <tr><th>الأصل</th><th>الفئة</th><th>تاريخ الشراء</th><th>التكلفة</th><th>مجمع الإهلاك</th><th>صافي القيمة الدفترية</th><th>الحالة</th></tr>
+              <tr class="row-clickable"><td>ونش برجي — Liebherr 280</td><td>معدات ثقيلة</td><td>2023-03-11</td><td class="mono">6,200,000</td><td class="mono">1,850,000</td><td class="mono">4,350,000</td><td><span class="pill pill-green">نشط</span></td></tr>
+              <tr class="row-clickable"><td>سيارات نقل (×3)</td><td>وسائل نقل</td><td>2024-06-02</td><td class="mono">2,100,000</td><td class="mono">420,000</td><td class="mono">1,680,000</td><td><span class="pill pill-green">نشط</span></td></tr>
+              <tr class="row-clickable"><td>مولد كهرباء — موقع الياسمين</td><td>معدات موقع</td><td>2022-11-20</td><td class="mono">980,000</td><td class="mono">610,000</td><td class="mono">370,000</td><td><span class="pill pill-amber">قرب نهاية العمر الافتراضي</span></td></tr>
+            </table>
+          </div>
+        </div>
+
+        <div class="fin-pane" id="fin-expenses" style="display:none">
+          <div style="background:var(--blue-soft); color:var(--blue); border-radius:10px; padding:12px 16px; font-size:12.5px; margin-bottom:16px;">
+            <b>مرجع محاسبي:</b> كل مصروف هنا يُرحّل تلقائيًا إلى حساب <b>"مصاريف تشغيلية"</b> (ضمن قائمة الدخل) في ميزان المراجعة، ويقلّل رصيد البنك المختار في نفس الوقت — هذا هو نفس منطق الترحيل المزدوج (Debit/Credit) المستخدم في كل شاشة أخرى بالنظام.
+          </div>
+          <div class="kpi-row" style="grid-template-columns:repeat(3,1fr); margin-bottom:16px;">
+            <div class="kpi"><div class="label">إجمالي المصروفات هذا الشهر</div><div class="value" id="kpi-expenses-total">0</div></div>
+            <div class="kpi"><div class="label">مصاريف إدارية</div><div class="value" id="kpi-expenses-admin">0</div></div>
+            <div class="kpi"><div class="label">مصاريف مواقع/مشاريع</div><div class="value" id="kpi-expenses-site">0</div></div>
+          </div>
+          <div class="panel" id="expenses-panel">
+            <div class="panel-head"><h3>سجل المصروفات اليومية</h3>
+              <div style="display:flex; gap:14px; flex-wrap:wrap;">
+                <a class="link" onclick="openNewExpenseModal()">+ تسجيل مصروف</a>
+                <a class="link" onclick="exportTableToExcel('expenses-table','المصروفات_اليومية')">Excel ⬇</a>
+                <a class="link" onclick="printPanelAsPDF('expenses-panel','سجل المصروفات اليومية')">PDF 🖨</a>
+              </div>
+            </div>
             <table id="expenses-table"></table>
           </div>
         </div>
-      </div>
 
-      <!-- 5. الإدارة المالية والمحاسبة -->
-      <div id="view-finance" class="view">
-        <div class="card">
-          <div class="card-header">
-            <h2>ميزان المراجعة المحاسبي والحسابات المتاحة</h2>
-            <button class="btn" onclick="exportTableToExcel('finance-table', 'Trial_Balance')">تصدير Excel</button>
+        <div class="fin-pane" id="fin-custody" style="display:none">
+          <div style="background:var(--blue-soft); color:var(--blue); border-radius:10px; padding:12px 16px; font-size:12.5px; margin-bottom:16px;">
+            <b>مرجع محاسبي:</b> العهدة سلفة نقدية مقدّمة لموظف مسؤول (زي مشرف الموقع أو أمين المخزن) بيصرف منها المصاريف اليومية الصغيرة بدل ما يرجع للبنك كل مرة. كل عهدة بتخص شركة واحدة بس، ورصيدها بيقل تلقائيًا مع كل مصروف يُسجَّل "من العهدة".
           </div>
-          <div class="table-container"><table id="finance-table"></table></div>
+          <div class="panel" id="custody-panel">
+            <div class="panel-head"><h3>عُهد الشركة الحالية</h3>
+              <div style="display:flex; gap:14px; flex-wrap:wrap;">
+                <a class="link" onclick="openNewCustodyModal()">+ صرف عهدة جديدة</a>
+                <a class="link" onclick="exportTableToExcel('custody-table','العهدة_اليومية')">Excel ⬇</a>
+                <a class="link" onclick="printPanelAsPDF('custody-panel','العهدة اليومية')">PDF 🖨</a>
+              </div>
+            </div>
+            <table id="custody-table"></table>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head"><h3>حركات الصرف من العُهد — بالبند والتاريخ</h3></div>
+            <table id="custody-moves-table"></table>
+          </div>
         </div>
       </div>
+    </div>
 
-      <!-- 6. المقاولات والتشييد -->
-      <div id="view-const" class="view">
-        <div class="card">
-          <div class="card-header"><h2>موقف المقاولين من الباطن والتقدم الإنشائي</h2></div>
-          <div class="table-container"><table id="const-table"></table></div>
+    <!-- ===== CONSTRUCTION VIEW ===== -->
+    <div class="view" id="view-construction">
+      <div class="topbar">
+        <div><h1>المشاريع الإنشائية</h1><div class="sub">6 مشاريع جارية — المعروض هنا: برج النيل التجاري</div></div>
+        <div class="top-actions"><button class="btn-primary" onclick="openModal('modal-newproject')">+ مشروع جديد</button></div>
+      </div>
+      <div class="content">
+        <div class="panel">
+          <div class="panel-head"><h3>كل المشاريع</h3></div>
+          <table id="projects-table">
+            <tr><th>كود</th><th>المشروع</th><th>العميل</th><th>الميزانية</th><th>التكلفة الفعلية</th><th>نسبة الإنجاز</th><th>الحالة</th></tr>
+            <tr class="row-clickable"><td class="mono">PRJ-001</td><td>برج النيل التجاري</td><td>شركة النيل للاستثمار</td><td class="mono">28,000,000</td><td class="mono">21,300,000</td><td>72%</td><td><span class="pill pill-green">ضمن الخطة</span></td></tr>
+            <tr class="row-clickable"><td class="mono">PRJ-002</td><td>كمبوند الياسمين — المرحلة 2</td><td>مجموعة الوسام القابضة</td><td class="mono">40,000,000</td><td class="mono">21,900,000</td><td>45%</td><td><span class="pill pill-amber">تأخير طفيف</span></td></tr>
+            <tr class="row-clickable"><td class="mono">PRJ-003</td><td>مجمع مكاتب الشيخ زايد</td><td>هيئة المجتمعات العمرانية</td><td class="mono">15,500,000</td><td class="mono">15,900,000</td><td>91%</td><td><span class="pill pill-red">تجاوز ميزانية</span></td></tr>
+            <tr class="row-clickable"><td class="mono">PRJ-004</td><td>مستشفى العاشر من رمضان</td><td>وزارة الصحة</td><td class="mono">54,000,000</td><td class="mono">9,200,000</td><td>17%</td><td><span class="pill pill-blue">بداية التنفيذ</span></td></tr>
+          </table>
+        </div>
+
+        <div class="tabs" id="const-tabs">
+          <div class="tab active" data-const="wbs">هيكل الأعمال (WBS)</div>
+          <div class="tab" data-const="boq">جدول الكميات (BOQ)</div>
+          <div class="tab" data-const="vo">أوامر التغيير</div>
+          <div class="tab" data-const="subs">المقاولون من الباطن</div>
+          <div class="tab" data-const="cost">تفصيل التكلفة</div>
+        </div>
+
+        <!-- WBS -->
+        <div class="const-pane" id="const-wbs">
+          <div class="panel" style="margin-bottom:14px;">
+            <div class="panel-head"><h3>كيف تُحسب النسبة والمسار الحرج؟</h3></div>
+            <div style="font-size:12.5px; color:var(--muted); line-height:1.9;">
+              <b>نسبة الإنجاز:</b> مدخل حقيقي يقرّره مهندس الموقع (تقرير فعلي من الميدان) لكل نشاط — مش رقم بيتحسب لوحده. النسبة الإجمالية للمشروع فوق = متوسط مرجّح بمدة كل نشاط (نشاط مدته 245 يوم بتأثيره على الإجمالي أكبر من نشاط مدته 10 أيام).<br>
+              <b>المسار الحرج:</b> بيتحسب أوتوماتيك من "مدة كل نشاط" و"هو بيبدأ بعد إيه" اللي بتدخلهم — النظام بيحسب أبكر وقت ممكن يبدأ فيه كل نشاط وأبكر وقت ينتهي (Forward Pass), وبعدين لأخر تاريخ ممكن يبدأ فيه من غير ما يأخّر المشروع (Backward Pass). أي نشاط "هامشه = صفر" (مفيش وقت فاضي يتأخر فيه) بيبقى على المسار الحرج فعليًا.
+            </div>
+          </div>
+
+          <div class="kpi-row" style="grid-template-columns:repeat(3,1fr); margin-bottom:16px;">
+            <div class="kpi"><div class="label">نسبة الإنجاز الإجمالية (مرجّحة بالمدة)</div><div class="value" id="wbs-overall-pct">0%</div></div>
+            <div class="kpi"><div class="label">المدة الكلية المحسوبة للمشروع</div><div class="value" id="wbs-total-duration">0 يوم</div></div>
+            <div class="kpi"><div class="label">تاريخ الانتهاء المتوقع</div><div class="value" id="wbs-end-date" style="font-size:16px;">—</div></div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head"><h3>هيكل تقسيم الأعمال — برج النيل التجاري</h3>
+              <div style="display:flex; gap:14px;">
+                <a class="link" onclick="openModal('modal-newactivity')">+ إضافة نشاط</a>
+                <a class="link" onclick="exportTableToExcel('wbs-table','هيكل_تقسيم_الأعمال')">Excel ⬇</a>
+              </div>
+            </div>
+            <table id="wbs-table"></table>
+          </div>
+        </div>
+
+        <!-- BOQ -->
+        <div class="const-pane" id="const-boq" style="display:none">
+          <div class="panel">
+            <div class="panel-head"><h3>جدول الكميات (BOQ)</h3><a class="link" onclick="openModal('modal-newboq')">+ إضافة بند</a></div>
+            <table id="boq-table">
+              <tr><th>البند</th><th>الوحدة</th><th>الكمية التعاقدية</th><th>سعر الوحدة</th><th>القيمة الكلية</th><th>نسبة المنفذ</th><th>القيمة المكتسبة</th></tr>
+              <tr class="row-clickable"><td>خرسانة مسلحة 300 كجم/م³</td><td>م³</td><td class="mono">12,400</td><td class="mono">4,850</td><td class="mono">60,140,000</td><td>82%</td><td class="mono">49,314,800</td></tr>
+              <tr class="row-clickable"><td>حديد تسليح</td><td>طن</td><td class="mono">1,850</td><td class="mono">38,200</td><td class="mono">70,670,000</td><td>78%</td><td class="mono">55,122,600</td></tr>
+              <tr class="row-clickable"><td>أعمال طوب وحوائط</td><td>م²</td><td class="mono">28,000</td><td class="mono">210</td><td class="mono">5,880,000</td><td>30%</td><td class="mono">1,764,000</td></tr>
+              <tr class="row-clickable"><td>واجهات زجاجية (كيرتن وول)</td><td>م²</td><td class="mono">6,200</td><td class="mono">3,400</td><td class="mono">21,080,000</td><td>5%</td><td class="mono">1,054,000</td></tr>
+            </table>
+          </div>
+        </div>
+
+        <!-- Variation Orders -->
+        <div class="const-pane" id="const-vo" style="display:none">
+          <div class="panel">
+            <div class="panel-head"><h3>أوامر التغيير</h3><a class="link" onclick="openModal('modal-newvo')">+ طلب تغيير</a></div>
+            <table id="vo-table">
+              <tr><th>الكود</th><th>الوصف</th><th>القيمة</th><th>التأثير على المدة</th><th>الحالة</th></tr>
+              <tr class="row-clickable"><td class="mono">VO-014</td><td>تعديل تشطيبات اللوبي الرئيسي</td><td class="mono">+1,250,000</td><td>+7 أيام</td><td><span class="pill pill-amber">بانتظار اعتماد العميل</span></td></tr>
+              <tr class="row-clickable"><td class="mono">VO-015</td><td>إضافة نظام إطفاء حريق إضافي بالبدروم</td><td class="mono">+680,000</td><td>+3 أيام</td><td><span class="pill pill-green">معتمد</span></td></tr>
+              <tr class="row-clickable"><td class="mono">VO-016</td><td>حذف بند الرخام واستبداله بالبورسلين</td><td class="mono">-410,000</td><td>0 أيام</td><td><span class="pill pill-blue">قيد التسعير</span></td></tr>
+            </table>
+          </div>
+        </div>
+
+        <!-- Subcontractors -->
+        <div class="const-pane" id="const-subs" style="display:none">
+          <div class="panel" id="subs-panel">
+            <div class="panel-head"><h3>المقاولون من الباطن — برج النيل</h3>
+              <div style="display:flex; gap:14px; flex-wrap:wrap;">
+                <a class="link" onclick="openModal('modal-newsub')">+ مقاول باطن جديد</a>
+                <a class="link" onclick="openModal('modal-newcert')">+ تسجيل شهادة إنجاز</a>
+                <a class="link" onclick="exportTableToExcel('subs-table','المقاولون_من_الباطن')">Excel ⬇</a>
+                <a class="link" onclick="printPanelAsPDF('subs-panel','المقاولون من الباطن')">PDF 🖨</a>
+              </div>
+            </div>
+            <table id="subs-table"></table>
+          </div>
+        </div>
+
+        <!-- Cost detail -->
+        <div class="const-pane" id="const-cost" style="display:none">
+          <div class="kpi-row" style="grid-template-columns:repeat(4,1fr); margin-bottom:16px;">
+            <div class="kpi"><div class="label">إجمالي ميزانية المشروع</div><div class="value">28.0M</div></div>
+            <div class="kpi"><div class="label">إجمالي الملتزم به</div><div class="value">26.8M</div></div>
+            <div class="kpi"><div class="label">إجمالي التكلفة الفعلية</div><div class="value" style="color:var(--teal)">21.3M</div></div>
+            <div class="kpi"><div class="label">المتبقي من الميزانية</div><div class="value" style="color:var(--blue)">6.7M</div></div>
+          </div>
+
+          <div class="panel" id="costmodel-panel">
+            <div class="panel-head"><h3>نموذج حساب التكلفة (Cost Model)</h3>
+              <div style="display:flex; gap:14px; align-items:center;">
+                <span style="font-size:12px; color:var(--muted)">دخّل المدخلات — التكلفة تتحسب أوتوماتيك</span>
+                <a class="link" onclick="printPanelAsPDF('costmodel-panel','نموذج حساب التكلفة — برج النيل التجاري')">PDF 🖨</a>
+              </div>
+            </div>
+
+            <table style="margin-bottom:6px;">
+              <tr><th>بند التكلفة</th><th>الكمية / الساعات</th><th>سعر الوحدة</th><th>التكلفة المحسوبة</th></tr>
+              <tr>
+                <td>مواد خام</td>
+                <td><input type="number" class="cm-qty" id="cm-mat-qty" value="1850" oninput="recalcCostModel()" style="width:110px; padding:6px; border:1px solid var(--line); border-radius:6px;"> طن</td>
+                <td><input type="number" class="cm-rate" id="cm-mat-rate" value="4270" oninput="recalcCostModel()" style="width:110px; padding:6px; border:1px solid var(--line); border-radius:6px;"></td>
+                <td class="mono" id="cm-mat-total">0</td>
+              </tr>
+              <tr>
+                <td>عمالة مباشرة</td>
+                <td><input type="number" class="cm-qty" id="cm-lab-qty" value="42000" oninput="recalcCostModel()" style="width:110px; padding:6px; border:1px solid var(--line); border-radius:6px;"> ساعة</td>
+                <td><input type="number" class="cm-rate" id="cm-lab-rate" value="70" oninput="recalcCostModel()" style="width:110px; padding:6px; border:1px solid var(--line); border-radius:6px;"></td>
+                <td class="mono" id="cm-lab-total">0</td>
+              </tr>
+              <tr>
+                <td>معدات وآليات</td>
+                <td><input type="number" class="cm-qty" id="cm-eq-qty" value="1700" oninput="recalcCostModel()" style="width:110px; padding:6px; border:1px solid var(--line); border-radius:6px;"> ساعة تشغيل</td>
+                <td><input type="number" class="cm-rate" id="cm-eq-rate" value="500" oninput="recalcCostModel()" style="width:110px; padding:6px; border:1px solid var(--line); border-radius:6px;"></td>
+                <td class="mono" id="cm-eq-total">0</td>
+              </tr>
+              <tr>
+                <td>مقاولون من الباطن (قيمة تعاقدية مباشرة)</td>
+                <td colspan="2"><input type="number" id="cm-sub-value" value="9600000" oninput="recalcCostModel()" style="width:100%; padding:6px; border:1px solid var(--line); border-radius:6px;"></td>
+                <td class="mono" id="cm-sub-total">0</td>
+              </tr>
+            </table>
+
+            <div style="display:flex; gap:16px; align-items:center; margin:14px 0; flex-wrap:wrap;">
+              <div>
+                <label style="font-size:12px; color:var(--muted); display:block; margin-bottom:4px;">نسبة المصاريف الإدارية والعمومية (%)</label>
+                <input type="number" id="cm-overhead" value="6" oninput="recalcCostModel()" style="width:90px; padding:6px; border:1px solid var(--line); border-radius:6px;">
+              </div>
+              <div>
+                <label style="font-size:12px; color:var(--muted); display:block; margin-bottom:4px;">نسبة الطوارئ / المخاطر (%)</label>
+                <input type="number" id="cm-contingency" value="3" oninput="recalcCostModel()" style="width:90px; padding:6px; border:1px solid var(--line); border-radius:6px;">
+              </div>
+            </div>
+
+            <div style="background:var(--teal-soft); border-radius:10px; padding:16px 20px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+              <div>
+                <div style="font-size:12px; color:var(--muted);">التكلفة المباشرة (مواد + عمالة + معدات + مقاولين)</div>
+                <div class="mono" style="font-size:18px; font-weight:800;" id="cm-direct-total">0</div>
+              </div>
+              <div>
+                <div style="font-size:12px; color:var(--muted);">+ مصاريف إدارية وطوارئ</div>
+                <div class="mono" style="font-size:18px; font-weight:800;" id="cm-overhead-total">0</div>
+              </div>
+              <div>
+                <div style="font-size:12px; color:var(--teal); font-weight:700;">= إجمالي تكلفة المشروع المحسوبة</div>
+                <div class="mono" style="font-size:24px; font-weight:900; color:var(--teal);" id="cm-grand-total">0</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head"><h3>تفصيل التكلفة الفعلي المرحّل — برج النيل التجاري</h3><span style="font-size:12px; color:var(--muted)">هذا الجدول هو الأرقام الفعلية المرحّلة فعليًا على دفتر الأستاذ (وليس نموذج الحساب أعلاه)</span></div>
+            <table id="cost-table">
+              <tr><th>بند التكلفة</th><th>الموازنة</th><th>الملتزم به</th><th>الفعلي</th><th>المتبقي</th></tr>
+              <tr><td>مواد خام</td><td class="mono">9,000,000</td><td class="mono">8,700,000</td><td class="mono">7,900,000</td><td class="mono">1,100,000</td></tr>
+              <tr><td>مقاولين من الباطن</td><td class="mono">12,500,000</td><td class="mono">11,800,000</td><td class="mono">9,600,000</td><td class="mono">2,900,000</td></tr>
+              <tr><td>عمالة مباشرة</td><td class="mono">4,200,000</td><td class="mono">4,200,000</td><td class="mono">2,950,000</td><td class="mono">1,250,000</td></tr>
+              <tr><td>معدات وآليات</td><td class="mono">2,300,000</td><td class="mono">2,100,000</td><td class="mono">850,000</td><td class="mono">1,450,000</td></tr>
+              <tr style="font-weight:800; background:#fafbfd;"><td>الإجمالي</td><td class="mono">28,000,000</td><td class="mono">26,800,000</td><td class="mono">21,300,000</td><td class="mono">6,700,000</td></tr>
+            </table>
+          </div>
         </div>
       </div>
+    </div>
 
-      <!-- 7. الاستثمار العقاري -->
-      <div id="view-re" class="view">
-        <div class="card">
-          <div class="card-header"><h2>موقف الوحدات العقارية والتحصيلات</h2></div>
-          <div class="table-container"><table id="re-table"></table></div>
+    <!-- ===== REAL ESTATE VIEW ===== -->
+    <div class="view" id="view-realestate">
+      <div class="topbar">
+        <div><h1>التطوير العقاري</h1><div class="sub">كمبوند الياسمين — المرحلة 2</div></div>
+        <div class="top-actions"><button class="btn-secondary" onclick="openModal('modal-pricelist')">قائمة الأسعار</button><button class="btn-primary" onclick="openModal('modal-reservation')">+ حجز وحدة</button></div>
+      </div>
+      <div class="content">
+
+        <div class="tabs" id="re-tabs">
+          <div class="tab active" data-re="units">خريطة الوحدات</div>
+          <div class="tab" data-re="contracts">التعاقدات</div>
+          <div class="tab" data-re="installments">الأقساط والتحصيل</div>
+          <div class="tab" data-re="handover">التسليم والاستلام</div>
+        </div>
+
+        <div class="re-pane" id="re-units">
+          <div class="panel">
+            <div class="panel-head"><h3>خريطة الوحدات — العمارة B</h3></div>
+            <div class="unit-grid" id="unit-grid"></div>
+            <div class="legend">
+              <span><span class="dot" style="background:var(--blue)"></span> متاحة</span>
+              <span><span class="dot" style="background:var(--amber)"></span> محجوزة</span>
+              <span><span class="dot" style="background:var(--teal)"></span> مباعة</span>
+              <span><span class="dot" style="background:#b8bfcc"></span> غير متاحة</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="re-pane" id="re-contracts" style="display:none">
+          <div class="panel" id="contracts-panel">
+            <div class="panel-head"><h3>أحدث التعاقدات</h3>
+              <div style="display:flex; gap:14px; flex-wrap:wrap;">
+                <a class="link" onclick="openModal('modal-newcontract')">+ تعاقد جديد</a>
+                <a class="link" onclick="exportTableToExcel('contracts-table','التعاقدات')">Excel ⬇</a>
+                <a class="link" onclick="printPanelAsPDF('contracts-panel','أحدث التعاقدات')">PDF 🖨</a>
+              </div>
+            </div>
+            <table id="contracts-table"></table>
+          </div>
+        </div>
+
+        <div class="re-pane" id="re-installments" style="display:none">
+          <div class="kpi-row" style="grid-template-columns:repeat(3,1fr); margin-bottom:16px;">
+            <div class="kpi"><div class="label">أقساط مستحقة هذا الشهر</div><div class="value">2.4M</div></div>
+            <div class="kpi"><div class="label">أقساط متأخرة</div><div class="value" style="color:var(--red)">2.1M</div></div>
+            <div class="kpi"><div class="label">توقع تحصيل الربع القادم</div><div class="value" style="color:var(--teal)">9.6M</div></div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head"><h3>حاسبة تسعير الوحدة وخطة التقسيط</h3><span style="font-size:12px; color:var(--muted)">دخّل بيانات الوحدة — الخطة تتحسب أوتوماتيك</span></div>
+            <div class="form-grid" style="margin-bottom:16px;">
+              <div><label style="display:block; font-size:12px; color:var(--muted); margin-bottom:4px;">مساحة الوحدة (م²)</label><input type="number" id="pc-area" value="150" oninput="recalcPricing()" style="width:100%; padding:8px; border:1px solid var(--line); border-radius:8px;"></div>
+              <div><label style="display:block; font-size:12px; color:var(--muted); margin-bottom:4px;">سعر المتر (ج.م)</label><input type="number" id="pc-rate" value="21300" oninput="recalcPricing()" style="width:100%; padding:8px; border:1px solid var(--line); border-radius:8px;"></div>
+              <div><label style="display:block; font-size:12px; color:var(--muted); margin-bottom:4px;">المقدم (%)</label><input type="number" id="pc-down" value="15" oninput="recalcPricing()" style="width:100%; padding:8px; border:1px solid var(--line); border-radius:8px;"></div>
+              <div><label style="display:block; font-size:12px; color:var(--muted); margin-bottom:4px;">مدة التقسيط (سنوات)</label><input type="number" id="pc-years" value="6" oninput="recalcPricing()" style="width:100%; padding:8px; border:1px solid var(--line); border-radius:8px;"></div>
+              <div><label style="display:block; font-size:12px; color:var(--muted); margin-bottom:4px;">عدد الدفعات في السنة</label>
+                <select id="pc-freq" onchange="recalcPricing()" style="width:100%; padding:8px; border:1px solid var(--line); border-radius:8px;">
+                  <option value="12">شهري (12)</option><option value="4">ربع سنوي (4)</option><option value="2">نصف سنوي (2)</option><option value="1">سنوي (1)</option>
+                </select>
+              </div>
+            </div>
+            <div style="background:var(--blue-soft); border-radius:10px; padding:16px 20px; display:flex; justify-content:space-between; flex-wrap:wrap; gap:14px;">
+              <div><div style="font-size:12px; color:var(--muted);">إجمالي قيمة الوحدة</div><div class="mono" style="font-size:18px; font-weight:800;" id="pc-total">0</div></div>
+              <div><div style="font-size:12px; color:var(--muted);">قيمة المقدم</div><div class="mono" style="font-size:18px; font-weight:800;" id="pc-downval">0</div></div>
+              <div><div style="font-size:12px; color:var(--muted);">المبلغ المتبقي على التقسيط</div><div class="mono" style="font-size:18px; font-weight:800;" id="pc-remaining">0</div></div>
+              <div><div style="font-size:12px; color:var(--blue); font-weight:700;">= قيمة القسط الواحد</div><div class="mono" style="font-size:24px; font-weight:900; color:var(--blue);" id="pc-installment">0</div></div>
+            </div>
+          </div>
+
+          <div class="panel" id="installments-panel">
+            <div class="panel-head"><h3 id="installments-title">جدول أقساط</h3>
+              <div style="display:flex; gap:14px; align-items:center; flex-wrap:wrap;">
+                <select id="unit-selector" onchange="renderInstallmentsTable()" style="padding:7px 10px; border:1px solid var(--line); border-radius:8px; font-family:inherit; font-size:12.5px;"></select>
+                <a class="link" onclick="openModal('modal-collect')">+ تحصيل قسط</a>
+                <a class="link" onclick="exportTableToExcel('installments-table','جدول_الأقساط')">Excel ⬇</a>
+                <a class="link" onclick="printPanelAsPDF('installments-panel','جدول الأقساط')">PDF 🖨</a>
+              </div>
+            </div>
+            <table id="installments-table"></table>
+          </div>
+        </div>
+
+        <div class="re-pane" id="re-handover" style="display:none">
+          <div class="panel" id="handover-panel">
+            <div class="panel-head"><h3>حالة التسليم — العمارة B</h3>
+              <div style="display:flex; gap:14px;">
+                <a class="link" onclick="openModal('modal-completehandover')">+ تسجيل اكتمال تسليم</a>
+                <a class="link" onclick="exportTableToExcel('handover-table','حالة_التسليم')">Excel ⬇</a>
+                <a class="link" onclick="printPanelAsPDF('handover-panel','حالة التسليم')">PDF 🖨</a>
+              </div>
+            </div>
+            <table id="handover-table"></table>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ===== INVENTORY VIEW ===== -->
+    <div class="view" id="view-inventory">
+      <div class="topbar">
+        <div><h1>المخازن والمشتريات</h1><div class="sub">4 مخازن نشطة</div></div>
+        <div class="top-actions"><button class="btn-primary" onclick="openModal('modal-newpo')">+ أمر شراء</button></div>
+      </div>
+      <div class="content">
+
+        <div class="tabs" id="inv-tabs">
+          <div class="tab active" data-inv="stock">أرصدة المخازن</div>
+          <div class="tab" data-inv="po">أوامر الشراء</div>
+          <div class="tab" data-inv="suppliers">تقييم الموردين</div>
+        </div>
+
+        <div class="inv-pane" id="inv-stock">
+          <div class="kpi-row" style="grid-template-columns:repeat(4,1fr); margin-bottom:16px;">
+            <div class="kpi"><div class="label">إجمالي قيمة المخزون</div><div class="value" id="kpi-stock-value">0</div></div>
+            <div class="kpi"><div class="label">أصناف أقل من الحد الأدنى</div><div class="value" style="color:var(--amber)" id="kpi-stock-low">0</div></div>
+            <div class="kpi"><div class="label">أصناف نافذة تمامًا</div><div class="value" style="color:var(--red)" id="kpi-stock-out">0</div></div>
+            <div class="kpi"><div class="label">عدد المخازن النشطة</div><div class="value" id="kpi-stock-warehouses">0</div></div>
+          </div>
+          <div class="panel" id="stock-panel">
+            <div class="panel-head"><h3>أرصدة الأصناف</h3>
+              <div style="display:flex; gap:14px; align-items:center; flex-wrap:wrap;">
+                <label style="font-size:12px; color:var(--muted);">كما في تاريخ:</label>
+                <input type="date" id="stock-asof" value="2026-07-22" onchange="renderStockTable()" style="padding:6px 8px; border:1px solid var(--line); border-radius:8px; font-family:inherit; font-size:12.5px;">
+                <select id="stock-warehouse-filter" onchange="renderStockTable()" style="padding:6px 8px; border:1px solid var(--line); border-radius:8px; font-family:inherit; font-size:12.5px;">
+                  <option value="all">كل المخازن</option>
+                </select>
+                <input type="text" id="stock-search" placeholder="بحث عن صنف..." oninput="renderStockTable()" style="padding:6px 8px; border:1px solid var(--line); border-radius:8px; font-family:inherit; font-size:12.5px; width:140px;">
+                <a class="link" onclick="openModal('modal-goodsreceipt')">+ استلام مخزون</a>
+                <a class="link" onclick="openMaterialIssueModal()">+ صرف مواد</a>
+                <a class="link" onclick="exportTableToExcel('stock-table','أرصدة_المخازن')">Excel ⬇</a>
+                <a class="link" onclick="printPanelAsPDF('stock-panel','أرصدة المخازن كما في '+document.getElementById('stock-asof').value)">PDF 🖨</a>
+              </div>
+            </div>
+            <div style="font-size:12px; color:var(--muted); margin-bottom:10px;">الأرصدة أدناه كما في: <span id="stock-asof-label">2026-07-22</span> — آخر حركة مسجّلة لكل صنف موضحة في العمود الأخير</div>
+            <table id="stock-table"></table>
+          </div>
+        </div>
+
+        <div class="inv-pane" id="inv-po" style="display:none">
+          <div class="kpi-row" style="grid-template-columns:repeat(4,1fr); margin-bottom:16px;">
+            <div class="kpi"><div class="label">إجمالي قيمة الأوامر المفتوحة</div><div class="value" id="kpi-po-open">0</div></div>
+            <div class="kpi"><div class="label">بانتظار الاعتماد</div><div class="value" style="color:var(--amber)" id="kpi-po-pending">0</div></div>
+            <div class="kpi"><div class="label">متأخرة التوريد</div><div class="value" style="color:var(--red)" id="kpi-po-late">0</div></div>
+            <div class="kpi"><div class="label">مستلمة هذا الشهر</div><div class="value" style="color:var(--teal)" id="kpi-po-received">0</div></div>
+          </div>
+          <div class="panel" id="po-panel">
+            <div class="panel-head"><h3>أوامر الشراء</h3>
+              <div style="display:flex; gap:14px; align-items:center; flex-wrap:wrap;">
+                <select id="po-status-filter" onchange="renderPOTable()" style="padding:6px 8px; border:1px solid var(--line); border-radius:8px; font-family:inherit; font-size:12.5px;">
+                  <option value="all">كل الحالات</option>
+                  <option value="بانتظار الاعتماد">بانتظار الاعتماد</option>
+                  <option value="معتمد">معتمد</option>
+                  <option value="مستلم جزئيًا">مستلم جزئيًا</option>
+                  <option value="مستلم بالكامل">مستلم بالكامل</option>
+                  <option value="متأخر التوريد">متأخر التوريد</option>
+                </select>
+                <a class="link" onclick="openNewPOModal()">+ أمر شراء</a>
+                <a class="link" onclick="exportTableToExcel('po-table','أوامر_الشراء')">Excel ⬇</a>
+                <a class="link" onclick="printPanelAsPDF('po-panel','أوامر الشراء')">PDF 🖨</a>
+              </div>
+            </div>
+            <table id="po-table"></table>
+          </div>
+        </div>
+
+        <div class="inv-pane" id="inv-suppliers" style="display:none">
+          <div class="panel" id="suppliers-eval-panel">
+            <div class="panel-head"><h3>تقييم أداء الموردين</h3>
+              <div style="display:flex; gap:14px;">
+                <a class="link" onclick="exportTableToExcel('suppliers-eval-table','تقييم_الموردين')">Excel ⬇</a>
+                <a class="link" onclick="printPanelAsPDF('suppliers-eval-panel','تقييم أداء الموردين')">PDF 🖨</a>
+              </div>
+            </div>
+            <table id="suppliers-eval-table"></table>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ===== HR VIEW ===== -->
+    <div class="view" id="view-hr">
+      <div class="topbar">
+        <div><h1>الموارد البشرية</h1><div class="sub">312 موظف</div></div>
+        <div class="top-actions"><button class="btn-primary" onclick="openModal('modal-newemployee')">+ إضافة موظف</button></div>
+      </div>
+      <div class="content">
+
+        <div class="tabs" id="hr-tabs">
+          <div class="tab active" data-hr="directory">دليل الموظفين</div>
+          <div class="tab" data-hr="payroll">حاسبة الراتب</div>
+          <div class="tab" data-hr="attendance">الحضور والانصراف</div>
+        </div>
+
+        <div class="hr-pane" id="hr-directory">
+          <div class="panel" id="employees-panel">
+            <div class="panel-head"><h3>الهيكل الوظيفي</h3>
+              <div style="display:flex; gap:14px;">
+                <a class="link" onclick="exportTableToExcel('employees-table','الموظفون')">Excel ⬇</a>
+                <a class="link" onclick="printPanelAsPDF('employees-panel','الهيكل الوظيفي')">PDF 🖨</a>
+              </div>
+            </div>
+            <table id="employees-table"></table>
+          </div>
+        </div>
+
+        <div class="hr-pane" id="hr-payroll" style="display:none">
+          <div class="panel">
+            <div class="panel-head"><h3>حاسبة الراتب الشهري</h3><span style="font-size:12px; color:var(--muted)">دخّل بيانات الموظف — الصافي يتحسب أوتوماتيك</span></div>
+            <div class="form-grid" style="margin-bottom:16px;">
+              <div><label style="display:block; font-size:12px; color:var(--muted); margin-bottom:4px;">الراتب الأساسي (ج.م)</label><input type="number" id="pr-basic" value="18500" oninput="recalcPayroll()" style="width:100%; padding:8px; border:1px solid var(--line); border-radius:8px;"></div>
+              <div><label style="display:block; font-size:12px; color:var(--muted); margin-bottom:4px;">بدلات (ج.م)</label><input type="number" id="pr-allow" value="2500" oninput="recalcPayroll()" style="width:100%; padding:8px; border:1px solid var(--line); border-radius:8px;"></div>
+              <div><label style="display:block; font-size:12px; color:var(--muted); margin-bottom:4px;">ساعات إضافي</label><input type="number" id="pr-ot-hours" value="10" oninput="recalcPayroll()" style="width:100%; padding:8px; border:1px solid var(--line); border-radius:8px;"></div>
+              <div><label style="display:block; font-size:12px; color:var(--muted); margin-bottom:4px;">سعر ساعة الإضافي (ج.م)</label><input type="number" id="pr-ot-rate" value="120" oninput="recalcPayroll()" style="width:100%; padding:8px; border:1px solid var(--line); border-radius:8px;"></div>
+              <div><label style="display:block; font-size:12px; color:var(--muted); margin-bottom:4px;">نسبة التأمينات الاجتماعية (%)</label><input type="number" id="pr-insurance" value="11" oninput="recalcPayroll()" style="width:100%; padding:8px; border:1px solid var(--line); border-radius:8px;"></div>
+              <div><label style="display:block; font-size:12px; color:var(--muted); margin-bottom:4px;">ضريبة الدخل (%)</label><input type="number" id="pr-tax" value="7.5" oninput="recalcPayroll()" style="width:100%; padding:8px; border:1px solid var(--line); border-radius:8px;"></div>
+              <div><label style="display:block; font-size:12px; color:var(--muted); margin-bottom:4px;">خصومات أخرى (ج.م)</label><input type="number" id="pr-deduct" value="0" oninput="recalcPayroll()" style="width:100%; padding:8px; border:1px solid var(--line); border-radius:8px;"></div>
+            </div>
+            <div style="background:var(--teal-soft); border-radius:10px; padding:16px 20px; display:flex; justify-content:space-between; flex-wrap:wrap; gap:14px;">
+              <div><div style="font-size:12px; color:var(--muted);">إجمالي الاستحقاقات</div><div class="mono" style="font-size:18px; font-weight:800;" id="pr-gross">0</div></div>
+              <div><div style="font-size:12px; color:var(--muted);">إجمالي الخصومات</div><div class="mono" style="font-size:18px; font-weight:800; color:var(--red);" id="pr-total-deduct">0</div></div>
+              <div><div style="font-size:12px; color:var(--teal); font-weight:700;">= صافي الراتب</div><div class="mono" style="font-size:24px; font-weight:900; color:var(--teal);" id="pr-net">0</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="hr-pane" id="hr-attendance" style="display:none">
+          <div class="panel">
+            <div class="panel-head"><h3>الحضور والانصراف — يوليو 2026</h3></div>
+            <table>
+              <tr><th>الموظف</th><th>أيام الحضور</th><th>أيام الغياب</th><th>مرات التأخير</th><th>ساعات إضافي</th></tr>
+              <tr><td>محمود سعيد</td><td>21</td><td>0</td><td>1</td><td>10</td></tr>
+              <tr><td>سارة عادل</td><td>20</td><td>1</td><td>0</td><td>4</td></tr>
+              <tr><td>كريم عبد الله</td><td>15</td><td>6</td><td>2</td><td>0</td></tr>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ===== REPORTS VIEW ===== -->
+    <div class="view" id="view-reports">
+      <div class="topbar"><div><h1>التقارير</h1><div class="sub">مركز التقارير المالية — نفس المجموعة الأساسية في Odoo وSAP</div></div></div>
+      <div class="content">
+        <div class="panel">
+          <div class="panel-head"><h3>منشئ التقارير</h3><span style="font-size:12px; color:var(--muted)">اختر النوع والفترة — التقرير يتجهّز فورًا، ومرتبط بالشركة المختارة فوق</span></div>
+          <div class="form-grid" style="margin-bottom:16px;">
+            <div><label style="display:block; font-size:12px; color:var(--muted); margin-bottom:4px;">نوع التقرير</label>
+              <select id="rep-type" style="width:100%; padding:8px; border:1px solid var(--line); border-radius:8px;">
+                <optgroup label="التقارير الأساسية (Core Financials)">
+                  <option value="trial">ميزان المراجعة</option>
+                  <option value="balancesheet">الميزانية العمومية (Balance Sheet)</option>
+                  <option value="pl">قائمة الدخل (Profit &amp; Loss)</option>
+                  <option value="cashflow">قائمة التدفقات النقدية</option>
+                  <option value="execsummary">الملخص التنفيذي</option>
+                </optgroup>
+                <optgroup label="كشوف الحسابات (Ledgers)">
+                  <option value="generalledger">دفتر الأستاذ العام</option>
+                  <option value="partnerledger">كشف حساب شريك موحّد (عميل/مورد)</option>
+                  <option value="ar">أعمار ديون العملاء</option>
+                  <option value="ap">أعمار ديون الموردين</option>
+                </optgroup>
+                <optgroup label="تقارير تشغيلية">
+                  <option value="revenue">الإيرادات حسب المشروع</option>
+                  <option value="cost">التكلفة حسب البند</option>
+                </optgroup>
+                <optgroup label="المستوى الموحّد (المجموعة)">
+                  <option value="masterstatement">كشف حساب عام — المجموعة بالكامل</option>
+                </optgroup>
+              </select>
+            </div>
+            <div><label style="display:block; font-size:12px; color:var(--muted); margin-bottom:4px;">من تاريخ</label><input type="date" id="rep-from" value="2026-01-01" style="width:100%; padding:8px; border:1px solid var(--line); border-radius:8px;"></div>
+            <div><label style="display:block; font-size:12px; color:var(--muted); margin-bottom:4px;">إلى تاريخ</label><input type="date" id="rep-to" value="2026-07-22" style="width:100%; padding:8px; border:1px solid var(--line); border-radius:8px;"></div>
+          </div>
+          <button class="btn-primary" onclick="generateReport()">إنشاء التقرير</button>
+        </div>
+
+        <div class="panel" id="report-output" style="display:none;">
+          <div class="panel-head"><h3 id="report-title"></h3>
+            <div style="display:flex; gap:14px;">
+              <a class="link" onclick="exportTableToExcel('report-table', document.getElementById('report-title').textContent.replace(/\s+/g,'_'))">Excel ⬇</a>
+              <a class="link" onclick="printTableAsPDF('report-table', document.getElementById('report-title').textContent)">PDF 🖨</a>
+            </div>
+          </div>
+          <div id="report-subtitle" style="font-size:12px; color:var(--muted); margin-bottom:10px;"></div>
+          <table id="report-table"></table>
         </div>
       </div>
-
     </div>
+
   </div>
+</div>
 
-  <!-- مودال إضافة مشتريات -->
-  <div id="purchaseModal" class="modal-overlay">
-    <div class="modal-card">
-      <div class="modal-header">
-        <h3>تسجيل فاتورة مشتريات وتوريد جديدة</h3>
-        <span class="close-modal" onclick="closeModal('purchaseModal')">&times;</span>
-      </div>
-      <div class="form-group"><label>الشهر والسنة:</label><input type="text" id="p-month" class="form-control" value="أغسطس 2026"></div>
-      <div class="form-group"><label>اسم المورد / الجهة:</label><input type="text" id="p-supplier" class="form-control" placeholder="مثال: مصانع الأخشاب"></div>
-      <div class="form-group"><label>بيان الصنف أو البند:</label><input type="text" id="p-item" class="form-control" placeholder="أخشاب سويد أو حديد تسليح"></div>
-      <div class="grid-2">
-        <div class="form-group"><label>الكمية:</label><input type="number" id="p-qty" class="form-control" value="10"></div>
-        <div class="form-group"><label>السعر الإجمالي (ج.م):</label><input type="number" id="p-total" class="form-control" value="50000"></div>
-      </div>
-      <button class="btn btn-accent" style="width:100%; margin-top:10px;" onclick="savePurchase()">حفظ وإضافة للسجل</button>
-    </div>
-  </div>
+<script>
+  let currentCompany = 'all';
 
-  <!-- مودال جرد المخازن والأخشاب -->
-  <div id="inventoryModal" class="modal-overlay">
-    <div class="modal-card">
-      <div class="modal-header">
-        <h3>إضافة بند جرد جديد (مع تحديد نوع الخشب والمقاسات)</h3>
-        <span class="close-modal" onclick="closeModal('inventoryModal')">&times;</span>
-      </div>
-      <div class="form-group"><label>اسم الصنف:</label><input type="text" id="inv-name" class="form-control" value="خشب تصنيع"></div>
-      <div class="form-group">
-        <label>تصنيف الخشب:</label>
-        <select id="inv-wood-type" class="form-control">
-          <option value="سويد">سويد</option>
-          <option value="بياض">بياض</option>
-          <option value="أخرى">أخرى</option>
-        </select>
-      </div>
-      <div class="grid-2">
-        <div class="form-group"><label>المقاس بالمتر:</label><input type="text" id="inv-dim-m" class="form-control" value="4 متر"></div>
-        <div class="form-group"><label>المقاس بالسنتيمتر:</label><input type="text" id="inv-dim-cm" class="form-control" value="25 سم"></div>
-      </div>
-      <div class="grid-2">
-        <div class="form-group"><label>الرصيد الفعلي:</label><input type="number" id="inv-qty" class="form-control" value="120"></div>
-        <div class="form-group"><label>نولون السيارة (ثابت):</label><input type="number" id="inv-freight" class="form-control" value="18000"></div>
-      </div>
-      <button class="btn btn-accent" style="width:100%; margin-top:10px;" onclick="saveInventoryItem()">حفظ بند الجرد</button>
-    </div>
-  </div>
+  const companyData = {
+    const: { revenue: 9.1, cash: 1.6, cost: 62.3, units: '—', unitsNote: 'هذه الشركة لا تدير وحدات عقارية', label: 'الوسام للمقاولات العامة' },
+    re:    { revenue: 8.7, cash: 2.4, cost: 0,    units: 37,  unitsNote: 'من إجمالي 210 وحدة', label: 'الوسام للتطوير العقاري' },
+    inv:   { revenue: 0.6, cash: 0.9, cost: 0,    units: '—', unitsNote: 'هذه الشركة لا تدير وحدات عقارية', label: 'الوسام للتوريدات والمقاولات' },
+    all:   { revenue: 18.4, cash: 4.9, cost: 62.3, units: 37, unitsNote: 'من إجمالي 210 وحدة (مجمّع)', label: 'مجموعة الوسام القابضة (مجمّع)' }
+  };
 
-  <!-- مودال تسجيل مصروف -->
-  <div id="expenseModal" class="modal-overlay">
-    <div class="modal-card">
-      <div class="modal-header">
-        <h3>تسجيل مصروف تشغيلي أو إداري جديد</h3>
-        <span class="close-modal" onclick="closeModal('expenseModal')">&times;</span>
-      </div>
-      <div class="form-group"><label>التاريخ:</label><input type="date" id="e-date" class="form-control"></div>
-      <div class="form-group"><label>بيان المصروف:</label><input type="text" id="e-desc" class="form-control" placeholder="صيانة معدات أو أدوات مكتبية"></div>
-      <div class="form-group">
-        <label>مركز التكلفة / الشركة:</label>
-        <select id="e-center" class="form-control">
-          <option value="شركة الوسام للمقاولات">شركة الوسام للمقاولات</option>
-          <option value="شركة الوسام للاستثمار العقاري">شركة الوسام للاستثمار العقاري</option>
-          <option value="مصانع وتجارة الأخشاب">مصانع وتجارة الأخشاب</option>
-        </select>
-      </div>
-      <div class="form-group"><label>المبلغ (ج.م):</label><input type="number" id="e-amount" class="form-control" value="5000"></div>
-      <button class="btn btn-accent" style="width:100%; margin-top:10px;" onclick="saveExpense()">حفظ وترحيل المصروف</button>
-    </div>
-  </div>
+  let customersData = [
+    { name: 'أحمد عبد الرحمن', unit: 'B-114', project: 'كمبوند الياسمين', balance: 1350000, company: 're' },
+    { name: 'شركة النور للاستيراد', unit: 'B-201', project: 'كمبوند الياسمين', balance: 3800000, company: 're' },
+    { name: 'خالد فتحي', unit: 'A-045', project: 'كمبوند الياسمين', balance: 500000, company: 're' },
+    { name: 'منى إبراهيم', unit: 'B-305', project: 'كمبوند الياسمين', balance: 0, company: 're' }
+  ];
 
-  <script>
-    // --- قواعد البيانات الحية والتفاعلية ---
-    let currentCompany = 'all';
+  let suppliersData = [
+    { name: 'شركة المتحدة للحديد', scope: 'موردين مواد', project: 'برج النيل التجاري', balance: 4200000, company: 'inv', onTimePct: 92, qualityPct: 96 },
+    { name: 'مقاولات الدلتا', scope: 'مقاول باطن', project: 'كمبوند الياسمين', balance: 3100000, company: 'const', onTimePct: 88, qualityPct: 93 },
+    { name: 'شركة الأسمنت المصرية', scope: 'موردين مواد', project: 'مجمع مكاتب الشيخ زايد', balance: 1900000, company: 'inv', onTimePct: 78, qualityPct: 90 },
+    { name: 'مصنع الطوب الحديث', scope: 'موردين مواد', project: 'المخزن الرئيسي', balance: 74000, company: 'inv', onTimePct: 54, qualityPct: 85 }
+  ];
 
-    let purchasesData = [
-      { month: 'يوليو 2026', supplier: 'الشرق الأوسط للحديد', item: 'حديد تسليح 16 مم', qty: 40, total: 1680000 },
-      { month: 'أغسطس 2026', supplier: 'مصانع الأخشاب السويدية', item: 'أخشاب تصنيع', qty: 100, total: 1250000 }
-    ];
+  const WBS_PROJECT_START = new Date('2025-02-01');
+  let wbsData = [
+    { code: '1.1', name: 'القواعد والأساسات', duration: 98, dependsOn: null, progressPct: 100 },
+    { code: '1.2', name: 'الأعمدة والأسقف — الأدوار 1-12', duration: 245, dependsOn: '1.1', progressPct: 78 },
+    { code: '3.0', name: 'الأعمال الكهروميكانيكية (MEP)', duration: 300, dependsOn: '1.1', progressPct: 35 },
+    { code: '2.0', name: 'أعمال التشطيبات', duration: 300, dependsOn: '1.2', progressPct: 22 },
+  ];
 
-    let inventoryData = [
-      { name: 'عرق تصنيع رئيسي', wood: 'سويد', dimM: '4 متر', dimCm: '10 سم', qty: 140, freight: 18000 },
-      { name: 'ألواح تشطيب', wood: 'بياض', dimM: '3 متر', dimCm: '25 سم', qty: 85, freight: 18000 }
-    ];
+  let inventoryData = [
+    { item: 'حديد تسليح 16مم', warehouse: 'مخزن مشروع النيل', unit: 'طن', qty: 420, reorderPoint: 150, maxLevel: 600, lastPrice: 38200, lastMoveDate: '2026-07-19', lastMoveDesc: 'إذن صرف لمشروع برج النيل', company: 'inv' },
+    { item: 'أسمنت بورتلاندي', warehouse: 'مخزن مشروع الياسمين', unit: 'طن', qty: 85, reorderPoint: 100, maxLevel: 400, lastPrice: 2650, lastMoveDate: '2026-07-20', lastMoveDesc: 'استلام PO-3379', company: 'inv' },
+    { item: 'طوب أحمر', warehouse: 'المخزن الرئيسي', unit: 'قطعة', qty: 0, reorderPoint: 20000, maxLevel: 80000, lastPrice: 1.85, lastMoveDate: '2026-07-15', lastMoveDesc: 'صرف كامل لمشروع الشيخ زايد', company: 'inv' },
+    { item: 'رمل بناء', warehouse: 'المخزن الرئيسي', unit: 'م³', qty: 1200, reorderPoint: 300, maxLevel: 3000, lastPrice: 95, lastMoveDate: '2026-07-12', lastMoveDesc: 'استلام مورد محلي', company: 'inv' },
+    { item: 'أسلاك كهربائية', warehouse: 'مخزن مشروع النيل', unit: 'لفة', qty: 40, reorderPoint: 50, maxLevel: 200, lastPrice: 1200, lastMoveDate: '2026-07-18', lastMoveDesc: 'صرف لأعمال MEP', company: 'inv' },
+    { item: 'خوذ وملابس سلامة', warehouse: 'مخزن عهدة الموقع — برج النيل', unit: 'قطعة', qty: 65, reorderPoint: 30, maxLevel: 150, lastPrice: 220, lastMoveDate: '2026-07-17', lastMoveDesc: 'تسليم عمالة جديدة', company: 'const' },
+    { item: 'زيوت وسوائل معدات', warehouse: 'مخزن عهدة الموقع — برج النيل', unit: 'برميل', qty: 12, reorderPoint: 8, maxLevel: 40, lastPrice: 3400, lastMoveDate: '2026-07-14', lastMoveDesc: 'صيانة دورية للونش البرجي', company: 'const' },
+    { item: 'سيراميك أرضيات (تشطيب)', warehouse: 'مخزن التشطيبات — كمبوند الياسمين', unit: 'م²', qty: 850, reorderPoint: 300, maxLevel: 3000, lastPrice: 310, lastMoveDate: '2026-07-16', lastMoveDesc: 'تشطيب وحدة نموذجية B-305', company: 're' },
+    { item: 'أثاث وحدة العرض (Show Unit)', warehouse: 'مخزن معرض المبيعات', unit: 'طقم', qty: 3, reorderPoint: 2, maxLevel: 6, lastPrice: 145000, lastMoveDate: '2026-06-30', lastMoveDesc: 'تجهيز وحدة العرض الجديدة', company: 're' }
+  ];
 
-    let expensesData = [
-      { date: '2026-08-01', desc: 'شراء لوازم تشغيل مصنع', center: 'مصانع وتجارة الأخشاب', amount: 15000 },
-      { date: '2026-08-03', desc: 'نولون نقل مواد بناء للموقع', center: 'شركة الوسام للمقاولات', amount: 18000 }
-    ];
+  let poData = [
+    { code: 'PO-3381', supplier: 'شركة المتحدة للحديد', item: 'حديد تسليح 16مم', qty: 300, unitPrice: 38200, orderDate: '2026-07-10', expectedDate: '2026-07-28', status: 'بانتظار الاعتماد', company: 'inv' },
+    { code: 'PO-3379', supplier: 'شركة الأسمنت المصرية', item: 'أسمنت بورتلاندي', qty: 500, unitPrice: 2650, orderDate: '2026-07-05', expectedDate: '2026-07-25', status: 'معتمد', company: 'inv' },
+    { code: 'PO-3370', supplier: 'مصنع الطوب الحديث', item: 'طوب أحمر', qty: 40000, unitPrice: 1.85, orderDate: '2026-06-28', expectedDate: '2026-07-20', status: 'متأخر التوريد', company: 'inv' },
+    { code: 'PO-3365', supplier: 'شركة المتحدة للحديد', item: 'حديد تسليح 16مم', qty: 200, unitPrice: 37800, orderDate: '2026-06-10', expectedDate: '2026-06-25', status: 'مستلم بالكامل', company: 'inv' },
+    { code: 'PO-CN-011', supplier: 'مورد معدات السلامة', item: 'خوذ وملابس سلامة', qty: 50, unitPrice: 220, orderDate: '2026-07-12', expectedDate: '2026-07-22', status: 'معتمد', company: 'const' },
+    { code: 'PO-RE-006', supplier: 'شركة السيراميك الحديثة', item: 'سيراميك أرضيات (تشطيب)', qty: 500, unitPrice: 310, orderDate: '2026-07-08', expectedDate: '2026-07-24', status: 'بانتظار الاعتماد', company: 're' }
+  ];
 
-    document.addEventListener('DOMContentLoaded', () => {
-      initNavigation();
-      renderAll();
-    });
+  let banksData = [
+    { id: 'bank-1', name: 'البنك الأهلي المصري', account: 'EG04 0001 1187', currency: 'EGP', balance: 3650000, statement: 3650000, status: 'مطابق', company: 'const' },
+    { id: 'bank-2', name: 'بنك مصر', account: 'EG09 0002 4420', currency: 'EGP', balance: 1100000, statement: 1040000, status: 'فروق قيد المراجعة', company: 're' },
+    { id: 'bank-3', name: 'HSBC', account: 'EG21 0003 7765', currency: 'USD', balance: 150000, statement: 150000, status: 'مطابق', company: 'inv' }
+  ];
 
-    function attemptLogin() {
+  let subcontractorsData = [
+    { name: 'مقاولات الدلتا', scope: 'أعمال الخرسانة', project: 'برج النيل التجاري', contractValue: 18500000, executed: 14800000, retentionPct: 10, lastCert: 'PC-2291', lastCertDate: '2026-07-10', company: 'const' },
+    { name: 'الشركة المصرية للتكييف', scope: 'أعمال التكييف المركزي', project: 'برج النيل التجاري', contractValue: 9200000, executed: 2760000, retentionPct: 10, lastCert: 'PC-2265', lastCertDate: '2026-06-28', company: 'const' },
+    { name: 'فينيسيا للواجهات', scope: 'الواجهات الزجاجية', project: 'برج النيل التجاري', contractValue: 21080000, executed: 1054000, retentionPct: 10, lastCert: 'PC-2288', lastCertDate: '2026-07-05', company: 'const' }
+  ];
+
+  let contractsData = [
+    { unit: 'B-114', customer: 'أحمد عبد الرحمن', value: 3200000, collected: 1850000, status: 'منتظم', company: 're',
+      installments: [
+        { no: 12, due: '2026-05-15', amount: 150000, paid: 150000, status: 'مسدد' },
+        { no: 13, due: '2026-06-15', amount: 150000, paid: 150000, status: 'مسدد' },
+        { no: 14, due: '2026-07-15', amount: 150000, paid: 0, status: 'مستحق حاليًا' },
+        { no: 15, due: '2026-08-15', amount: 150000, paid: 0, status: 'لم يحن موعده' }
+      ] },
+    { unit: 'B-201', customer: 'شركة النور للاستيراد', value: 5900000, collected: 2100000, status: 'متأخر 12 يوم', company: 're',
+      installments: [
+        { no: 7, due: '2026-06-01', amount: 300000, paid: 300000, status: 'مسدد' },
+        { no: 8, due: '2026-07-01', amount: 300000, paid: 0, status: 'متأخر' },
+        { no: 9, due: '2026-08-01', amount: 300000, paid: 0, status: 'لم يحن موعده' }
+      ] },
+    { unit: 'B-305', customer: 'منى إبراهيم', value: 2750000, collected: 2750000, status: 'مسدد بالكامل', company: 're',
+      installments: [
+        { no: 1, due: '2025-01-15', amount: 2750000, paid: 2750000, status: 'مسدد' }
+      ] }
+  ];
+
+  let handoverData = [
+    { unit: 'B-305', customer: 'منى إبراهيم', inspection: 'تمت', snags: 0, finalPayment: 'مكتمل', status: 'جاهزة للتسليم', company: 're' },
+    { unit: 'B-114', customer: 'أحمد عبد الرحمن', inspection: 'قيد المعاينة', snags: 3, finalPayment: 'غير مكتمل', status: 'تحت الإجراء', company: 're' }
+  ];
+
+  let expensesData = [];
+
+  let custodyData = [
+    { id: 'cst-1', company: 'const', holder: 'كريم عبد الله', method: 'نقدًا', openingAmount: 50000, balance: 37500, dateIssued: '2026-07-01', bankId: null },
+    { id: 'cst-2', company: 're',    holder: 'عمر حلمي',       method: 'شيك',   openingAmount: 30000, balance: 21000, dateIssued: '2026-07-01', bankId: null },
+    { id: 'cst-3', company: 'inv',   holder: 'أحمد جلال',       method: 'نقدًا', openingAmount: 20000, balance: 15400, dateIssued: '2026-07-01', bankId: null },
+  ];
+  let unitsData = {};
+
+  let employeesData = [
+    { id: 'emp-1', name: 'محمود سعيد', role: 'مهندس موقع أول', dept: 'الإنشاءات', hireDate: '2022-03-01', salary: 28000, status: 'نشط', company: 'const' },
+    { id: 'emp-2', name: 'سارة عادل', role: 'محاسب مشروع', dept: 'المالية', hireDate: '2023-07-15', salary: 18500, status: 'نشط', company: 'const' },
+    { id: 'emp-3', name: 'كريم عبد الله', role: 'مشرف عمالة', dept: 'الإنشاءات', hireDate: '2021-11-20', salary: 15000, status: 'إجازة', company: 'const' },
+    { id: 'emp-4', name: 'ياسمين طارق', role: 'مدير مبيعات عقاري', dept: 'المبيعات', hireDate: '2022-09-10', salary: 24000, status: 'نشط', company: 're' },
+    { id: 'emp-5', name: 'عمر حلمي', role: 'مسؤول تحصيل', dept: 'المالية', hireDate: '2023-02-05', salary: 14000, status: 'نشط', company: 're' },
+    { id: 'emp-6', name: 'هبة الشريف', role: 'مسؤول مشتريات', dept: 'المشتريات', hireDate: '2021-06-01', salary: 16500, status: 'نشط', company: 'inv' },
+    { id: 'emp-7', name: 'أحمد جلال', role: 'أمين مخزن', dept: 'المخازن', hireDate: '2020-10-12', salary: 11000, status: 'نشط', company: 'inv' }
+  ];
+
+  let coaData = {
+    const: [
+      { account: 'البنك — الحساب الجاري (بنك المقاولات)', opening: 3200000, debit: 2400000, credit: 700000, project: 'all', type: 'asset' },
+      { account: 'أعمال تحت التنفيذ (WIP)', opening: 51200000, debit: 11100000, credit: 0, project: 'برج النيل التجاري', type: 'asset' },
+      { account: 'موردون ومقاولون من الباطن', opening: 9400000, debit: 1200000, credit: 2800000, project: 'برج النيل التجاري', type: 'liability' },
+      { account: 'ضريبة القيمة المضافة (مدخلات)', opening: 0, debit: 610000, credit: 0, project: 'all', type: 'asset' },
+      { account: 'الأصول الثابتة — معدات وآليات', opening: 18400000, debit: 1200000, credit: 0, project: 'all', type: 'asset' },
+      { account: 'مجمع إهلاك المعدات', opening: 0, debit: 0, credit: 2100000, project: 'all', type: 'asset' },
+      { account: 'مستحق لشركة الوسام للتوريدات (معاملة بينية)', opening: 0, debit: 0, credit: 1850000, project: 'all', intercompany: true, type: 'liability' },
+      { account: 'إيراد أعمال المقاولات', opening: 0, debit: 0, credit: 21300000, project: 'برج النيل التجاري', type: 'revenue' },
+      { account: 'مصاريف تشغيلية', opening: 0, debit: 0, credit: 0, project: 'all', isExpenseRow: true, type: 'expense' }
+    ],
+    re: [
+      { account: 'البنك — الحساب الجاري (بنك التطوير العقاري)', opening: 900000, debit: 8100000, credit: 4300000, project: 'all', type: 'asset' },
+      { account: 'عملاء — أقساط الوحدات', opening: 6100000, debit: 1900000, credit: 2350000, project: 'كمبوند الياسمين', type: 'asset' },
+      { account: 'إيراد بيع وحدات عقارية', opening: 0, debit: 0, credit: 31500000, project: 'كمبوند الياسمين', type: 'revenue' },
+      { account: 'عمولات وسطاء مستحقة', opening: 0, debit: 0, credit: 620000, project: 'all', type: 'liability' },
+      { account: 'مصاريف تشغيلية', opening: 0, debit: 0, credit: 0, project: 'all', isExpenseRow: true, type: 'expense' }
+    ],
+    inv: [
+      { account: 'البنك — الحساب الجاري (بنك التوريدات)', opening: 400000, debit: 2200000, credit: 1450000, project: 'all', type: 'asset' },
+      { account: 'المخزون — مواد بناء', opening: 8200000, debit: 6044000, credit: 0, project: 'all', type: 'asset' },
+      { account: 'موردون', opening: 5100000, debit: 900000, credit: 2000000, project: 'all', type: 'liability' },
+      { account: 'مستحق من شركة الوسام للمقاولات (معاملة بينية)', opening: 0, debit: 1850000, credit: 0, project: 'all', intercompany: true, type: 'asset' },
+      { account: 'إيراد توريد مواد', opening: 0, debit: 0, credit: 9200000, project: 'all', type: 'revenue' },
+      { account: 'تكلفة البضاعة المباعة', opening: 0, debit: 4200000, credit: 0, project: 'all', type: 'expense' },
+      { account: 'مصاريف تشغيلية', opening: 0, debit: 0, credit: 0, project: 'all', isExpenseRow: true, type: 'expense' }
+    ]
+  };
+
+  const STORAGE_KEY = 'sahar_erp_data_v1';
+
+  function saveAllData(){
+    try {
+      const snapshot = {
+        customersData, suppliersData, banksData, subcontractorsData,
+        contractsData, handoverData, expensesData, unitsData, coaData, employeesData,
+        inventoryData, poData, wbsData, custodyData,
+        savedAt: new Date().toISOString()
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot));
+    } catch (e){
+      console.warn('تعذر الحفظ محليًا:', e.message);
+    }
+  }
+
+  function loadAllData(){
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if(raw){
+        const data = JSON.parse(raw);
+        if(data.customersData) customersData = data.customersData;
+        if(data.suppliersData) suppliersData = data.suppliersData;
+        if(data.banksData) banksData = data.banksData;
+        if(data.subcontractorsData) subcontractorsData = data.subcontractorsData;
+        if(data.contractsData) contractsData = data.contractsData;
+        if(data.handoverData) handoverData = data.handoverData;
+        if(data.expensesData) expensesData = data.expensesData;
+        if(data.unitsData) unitsData = data.unitsData;
+        if(data.coaData) coaData = data.coaData;
+        if(data.employeesData) employeesData = data.employeesData;
+        if(data.inventoryData) inventoryData = data.inventoryData;
+        if(data.poData) poData = data.poData;
+        if(data.wbsData) wbsData = data.wbsData;
+        if(data.custodyData) custodyData = data.custodyData;
+      }
+    }catch(e){
+      console.error(e);
+    }
+  }
+
+  const usersData = [
+    { username: 'mohamed', name: 'محمد واكد', role: 'مدير تجاري', company: 'all', pass: '1234' },
+    { username: 'mahmoud', name: 'محمود سعيد', role: 'مهندس موقع أول', company: 'const', pass: '1234' },
+    { username: 'yasmine', name: 'ياسمين طارق', role: 'مدير مبيعات عقاري', company: 're', pass: '1234' },
+    { username: 'heba', name: 'هبة الشريف', role: 'مسؤول مشتريات', company: 'inv', pass: '1234' }
+  ];
+
+  function initLoginUsers(){
+    const sel = document.getElementById('login-username');
+    if(!sel) return;
+    sel.innerHTML = usersData.map(u => `<option value="${u.username}">${u.name} (${u.role})</option>`).join('');
+  }
+
+  function attemptLogin(){
+    const uVal = document.getElementById('login-username').value;
+    const pVal = document.getElementById('login-password').value;
+    const err = document.getElementById('login-error');
+    const user = usersData.find(x => x.username === uVal);
+    if(user && (pVal === '1234' || pVal === user.pass)){
       document.getElementById('login-screen').style.display = 'none';
-      document.getElementById('user-display').textContent = document.getElementById('login-username').value;
+      document.getElementById('user-name-label').textContent = user.name;
+      document.getElementById('user-role-label').textContent = user.role;
+      document.getElementById('user-avatar').textContent = user.name.split(' ').map(n=>n[0]).join('').substring(0,2);
+      setCompany(user.company, user.company === 'all' ? 'مجموعة الوسام القابضة (مجمّع)' : companyData[user.company].label);
+    } else {
+      err.style.display = 'block';
+      err.textContent = 'كلمة المرور غير صحيحة (كلمة المرور الافتراضية هي 1234)';
     }
+  }
 
-    function logout() {
-      document.getElementById('login-screen').style.display = 'flex';
-    }
+  function logout(){
+    document.getElementById('login-screen').style.display = 'flex';
+    document.getElementById('login-password').value = '';
+  }
 
-    function toggleCompanyMenu() {
-      const menu = document.getElementById('company-menu');
-      menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
-    }
+  function toggleCompanyMenu(){
+    const m = document.getElementById('company-menu');
+    m.style.display = m.style.display === 'block' ? 'none' : 'block';
+  }
 
-    function setCompany(code, label) {
-      currentCompany = code;
-      document.getElementById('active-company-label').textContent = label;
-      document.getElementById('company-menu').style.display = 'none';
-      renderAll();
-    }
+  function setCompany(key, label){
+    currentCompany = key;
+    document.getElementById('active-company-label').textContent = label;
+    document.getElementById('company-menu').style.display = 'none';
+    updateDashboardKPIs();
+    renderAllViews();
+  }
 
-    function initNavigation() {
-      document.querySelectorAll('.nav-item').forEach(item => {
-        item.addEventListener('click', function() {
-          document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-          document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-          this.classList.add('active');
-          document.getElementById('view-' + this.getAttribute('data-view')).classList.add('active');
+  function updateDashboardKPIs(){
+    const dat = companyData[currentCompany] || companyData['all'];
+    document.getElementById('kpi-revenue').innerHTML = dat.revenue + '<span style="font-size:13px;color:var(--muted)"> ج.م</span>';
+    document.getElementById('kpi-cash').innerHTML = dat.cash + '<span style="font-size:13px;color:var(--muted)"> ج.م</span>';
+    document.getElementById('kpi-cost').innerHTML = dat.cost > 0 ? (dat.cost + '<span style="font-size:13px;color:var(--muted)"> ج.م</span>') : '—';
+    document.getElementById('kpi-units').innerHTML = dat.units;
+    document.getElementById('scope-banner').textContent = currentCompany === 'all' ? '📊 عرض مجمّع لكل شركات المجموعة الثلاث' : `📊 عرض خاص بشركة: ${dat.label}`;
+  }
+
+  document.querySelectorAll('.nav-item').forEach(item => {
+    item.addEventListener('click', function(){
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      this.classList.add('active');
+      const viewId = 'view-' + this.getAttribute('data-view');
+      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+      const target = document.getElementById(viewId);
+      if(target) target.classList.add('active');
+      if(window.innerWidth <= 860) toggleMobileSidebar();
+    });
+  });
+
+  document.querySelectorAll('.tabs').forEach(tabGroup => {
+    const tabs = tabGroup.querySelectorAll('.tab');
+    tabs.forEach(tab => {
+      tab.addEventListener('click', function(){
+        tabs.forEach(t => t.classList.remove('active'));
+        this.classList.add('active');
+        const parentView = tabGroup.closest('.view');
+        if(!parentView) return;
+        const attrKey = tab.getAttribute('data-fin') || tab.getAttribute('data-const') || tab.getAttribute('data-re') || tab.getAttribute('data-inv') || tab.getAttribute('data-hr');
+        if(!attrKey) return;
+        parentView.querySelectorAll('.fin-pane, .const-pane, .re-pane, .inv-pane, .hr-pane').forEach(pane => {
+          pane.style.display = 'none';
         });
+        const targetPane = document.getElementById('fin-' + attrKey) || document.getElementById('const-' + attrKey) || document.getElementById('re-' + attrKey) || document.getElementById('inv-' + attrKey) || document.getElementById('hr-' + attrKey);
+        if(targetPane) targetPane.style.display = 'block';
       });
-    }
+    });
+  });
 
-    function openModal(id) { document.getElementById(id).style.display = 'flex'; }
-    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+  function toggleMobileSidebar(){
+    const sb = document.getElementById('app-sidebar');
+    const bd = document.getElementById('sidebar-backdrop');
+    sb.classList.toggle('open');
+    bd.classList.toggle('show');
+  }
 
-    function savePurchase() {
-      const month = document.getElementById('p-month').value;
-      const supplier = document.getElementById('p-supplier').value;
-      const item = document.getElementById('p-item').value;
-      const qty = parseFloat(document.getElementById('p-qty').value) || 0;
-      const total = parseFloat(document.getElementById('p-total').value) || 0;
-      purchasesData.push({ month, supplier, item, qty, total });
-      closeModal('purchaseModal');
-      renderAll();
-    }
+  function renderAllViews(){
+    renderTrialTable();
+    renderARTable();
+    renderAPTable();
+    renderBanksTable();
+    renderExpensesTable();
+    renderCustodyTable();
+    renderWBSTable();
+    renderSubsTable();
+    renderContractsTable();
+    renderInstallmentsTable();
+    renderHandoverTable();
+    renderStockTable();
+    renderPOTable();
+    renderSuppliersEvalTable();
+    renderEmployeesTable();
+    renderUnitGrid();
+  }
 
-    function saveInventoryItem() {
-      const name = document.getElementById('inv-name').value;
-      const wood = document.getElementById('inv-wood-type').value;
-      const dimM = document.getElementById('inv-dim-m').value;
-      const dimCm = document.getElementById('inv-dim-cm').value;
-      const qty = parseFloat(document.getElementById('inv-qty').value) || 0;
-      const freight = parseFloat(document.getElementById('inv-freight').value) || 18000;
-      inventoryData.push({ name, wood, dimM, dimCm, qty, freight });
-      closeModal('inventoryModal');
-      renderAll();
-    }
+  function renderTrialTable(){
+    const table = document.getElementById('trial-table');
+    if(!table) return;
+    let rows = coaData[currentCompany === 'all' ? 'const' : currentCompany] || [];
+    let html = '<tr><th>اسم الحساب</th><th>النوع</th><th>المدين</th><th>الدائن</th><th>الرصيد الصافي</th></tr>';
+    let totDr = 0, totCr = 0;
+    rows.forEach(r => {
+      let net = r.opening + r.debit - r.credit;
+      totDr += r.debit;
+      totCr += r.credit;
+      html += `<tr><td>${r.account}</td><td><span class="pill pill-blue">${r.type}</span></td><td class="mono">${r.debit.toLocaleString()}</td><td class="mono">${r.credit.toLocaleString()}</td><td class="mono">${net.toLocaleString()}</td></tr>`;
+    });
+    html += `<tr style="font-weight:800; background:#fafbfd;"><td>الإجمالي</td><td>—</td><td class="mono">${totDr.toLocaleString()}</td><td class="mono">${totCr.toLocaleString()}</td><td class="mono">${(totDr - totCr).toLocaleString()}</td></tr>`;
+    table.innerHTML = html;
+  }
 
-    function saveExpense() {
-      const date = document.getElementById('e-date').value || new Date().toISOString().split('T')[0];
-      const desc = document.getElementById('e-desc').value;
-      const center = document.getElementById('e-center').value;
-      const amount = parseFloat(document.getElementById('e-amount').value) || 0;
-      expensesData.push({ date, desc, center, amount });
-      closeModal('expenseModal');
-      renderAll();
-    }
+  function renderARTable(){
+    const table = document.getElementById('ar-table');
+    if(!table) return;
+    let filtered = currentCompany === 'all' ? customersData : customersData.filter(c => c.company === currentCompany);
+    let html = '<tr><th>العميل</th><th>الوحدة</th><th>المشروع</th><th>الرصيد المستحق</th><th>الحالة</th></tr>';
+    filtered.forEach(c => {
+      html += `<tr><td>${c.name}</td><td>${c.unit}</td><td>${c.project}</td><td class="mono">${c.balance.toLocaleString()}</td><td><span class="pill ${c.balance > 1000000 ? 'pill-red' : 'pill-green'}">${c.balance > 1000000 ? 'متأخر سداد' : 'منتظم'}</span></td></tr>`;
+    });
+    table.innerHTML = html;
+  }
 
-    function renderAll() {
-      renderDashboard();
-      renderPurchasesTable();
-      renderInventoryTable();
-      renderExpensesTable();
-      renderFinanceTable();
-      renderConstTable();
-      renderReTable();
-    }
+  function renderAPTable(){
+    const table = document.getElementById('ap-table');
+    if(!table) return;
+    let filtered = currentCompany === 'all' ? suppliersData : suppliersData.filter(s => s.company === currentCompany);
+    let html = '<tr><th>المورد / المقاول</th><th>التصنيف</th><th>المشروع</th><th>الرصيد الدائن</th><th>التقييم</th></tr>';
+    filtered.forEach(s => {
+      html += `<tr><td>${s.name}</td><td>${s.scope}</td><td>${s.project}</td><td class="mono">${s.balance.toLocaleString()}</td><td><span class="pill pill-green">${s.onTimePct}% التزام</span></td></tr>`;
+    });
+    table.innerHTML = html;
+  }
 
-    function renderDashboard() {
-      document.getElementById('dash-inv-count').textContent = inventoryData.length + ' صنف';
-      let tableHtml = `<tr><th>القسم / البيان</th><th>إجمالي العمليات</th><th>الحالة</th></tr>`;
-      tableHtml += `<tr><td><b>سجل المشتريات والتوريدات</b></td><td class="mono">${purchasesData.length} فاتورة مسجلة</td><td><span class="pill pill-green">نشط</span></td></tr>`;
-      tableHtml += `<tr><td><b>شيت جرد المخازن والأخشاب</b></td><td class="mono">${inventoryData.length} صنف بالمخزن</td><td><span class="pill pill-green">محدث</span></td></tr>`;
-      tableHtml += `<tr><td><b>المصروفات ومراكز التكلفة</b></td><td class="mono">${expensesData.length} حركة مصروف</td><td><span class="pill pill-green">مطابق</span></td></tr>`;
-      document.getElementById('dash-summary-table').innerHTML = tableHtml;
-    }
+  function renderBanksTable(){
+    const table = document.getElementById('banks-table');
+    if(!table) return;
+    let filtered = currentCompany === 'all' ? banksData : banksData.filter(b => b.company === currentCompany);
+    let html = '<tr><th>البنك</th><th>رقم الحساب</th><th>العملة</th><th>الرصيد الدفتري</th><th>الحالة</th></tr>';
+    filtered.forEach(b => {
+      html += `<tr><td>${b.name}</td><td class="mono">${b.account}</td><td>${b.currency}</td><td class="mono">${b.balance.toLocaleString()}</td><td><span class="pill pill-green">${b.status}</span></td></tr>`;
+    });
+    table.innerHTML = html;
+  }
 
-    function renderPurchasesTable() {
-      let html = `<tr><th>الشهر</th><th>المورد</th><th>البند / الصنف</th><th>الكمية</th><th>الإجمالي (ج.م)</th></tr>`;
-      let totalSum = 0;
-      purchasesData.forEach(p => {
-        totalSum += p.total;
-        html += `<tr><td><span class="pill pill-blue">${p.month}</span></td><td><b>${p.supplier}</b></td><td>${p.item}</td><td class="mono">${p.qty}</td><td class="mono">${p.total.toLocaleString()} ج.م</td></tr>`;
-      });
-      html += `<tr><td colspan="4" style="text-align:left; font-weight:800;">الإجمالي السنوي العام:</td><td class="mono" style="font-weight:900; color:var(--primary);">${totalSum.toLocaleString()} ج.م</td></tr>`;
-      document.getElementById('purchases-table').innerHTML = html;
-    }
-
-    function renderInventoryTable() {
-      let html = `<tr><th>اسم الصنف</th><th>تصنيف الخشب</th><th>المقاس بالمتر</th><th>المقاس بالسنتيمتر</th><th>الرصيد الفعلي</th><th>نولون السيارة الثابت</th></tr>`;
-      inventoryData.forEach(i => {
-        html += `<tr><td><b>${i.name}</b></td><td><span class="pill pill-amber">${i.wood}</span></td><td class="mono">${i.dimM}</td><td class="mono">${i.dimCm}</td><td class="mono"><b>${i.qty}</b></td><td class="mono">${i.freight.toLocaleString()} ج.م</td></tr>`;
-      });
-      document.getElementById('inventory-table').innerHTML = html;
-    }
-
-    function renderExpensesTable() {
-      let html = `<tr><th>التاريخ</th><th>البيان</th><th>مركز التكلفة / الشركة</th><th>المبلغ (ج.م)</th></tr>`;
-      let total = 0;
+  function renderExpensesTable(){
+    const table = document.getElementById('expenses-table');
+    if(!table) return;
+    let html = '<tr><th>التاريخ</th><th>البند</th><th>البيان</th><th>الطريقة</th><th>المبلغ</th></tr>';
+    if(expensesData.length === 0){
+      html += '<tr><td colspan="5" style="text-align:center; color:var(--muted);">لا توجد مصروفات مسجلة بعد</td></tr>';
+    } else {
       expensesData.forEach(e => {
-        total += e.amount;
-        html += `<tr><td>${e.date}</td><td><b>${e.desc}</b></td><td><span class="pill pill-blue">${e.center}</span></td><td class="mono">${e.amount.toLocaleString()} ج.م</td></tr>`;
+        html += `<tr><td>${e.date}</td><td>${e.category}</td><td>${e.desc}</td><td>${e.method}</td><td class="mono">${e.amount.toLocaleString()}</td></tr>`;
       });
-      html += `<tr><td colspan="3" style="text-align:left; font-weight:800;">إجمالي المصروفات:</td><td class="mono" style="font-weight:900; color:var(--red);">${total.toLocaleString()} ج.م</td></tr>`;
-      document.getElementById('expenses-table').innerHTML = html;
     }
+    table.innerHTML = html;
+  }
 
-    function renderFinanceTable() {
-      document.getElementById('finance-table').innerHTML = `
-        <tr><th>الحساب المحاسبي</th><th>المركز المالي</th><th>المدين</th><th>الدائن</th><th>الرصيد</th></tr>
-        <tr><td>النقدية بالبنوك والخزينة</td><td>مجمّع</td><td class="mono">5,820,000</td><td class="mono">0</td><td class="mono"><b>5,820,000 ج.م</b></td></tr>
-        <tr><td>حسابات الموردين (AP)</td><td>مجمّع</td><td class="mono">1,500,000</td><td class="mono">2,930,000</td><td class="mono"><b>1,430,000 ج.م</b></td></tr>
-      `;
-    }
+  function renderCustodyTable(){
+    const table = document.getElementById('custody-table');
+    if(!table) return;
+    let filtered = currentCompany === 'all' ? custodyData : custodyData.filter(c => c.company === currentCompany);
+    let html = '<tr><th>المسؤول</th><th>طريقة الصرف</th><th>مبلغ العهدة</th><th>الرصيد الحالي</th><th>تاريخ الإصدار</th></tr>';
+    filtered.forEach(c => {
+      html += `<tr><td>${c.holder}</td><td>${c.method}</td><td class="mono">${c.openingAmount.toLocaleString()}</td><td class="mono">${c.balance.toLocaleString()}</td><td>${c.dateIssued}</td></tr>`;
+    });
+    table.innerHTML = html;
+  }
 
-    function renderConstTable() {
-      document.getElementById('const-table').innerHTML = `
-        <tr><th>المقاول من الباطن</th><th>النطاق</th><th>قيمة العقد</th><th>المنفذ</th><th>حالة المستخلصات</th></tr>
-        <tr><td>مؤسسة الفتح للخرسانة</td><td>صب أساسات</td><td class="mono">2,400,000</td><td class="mono">1,800,000</td><td><span class="pill pill-green">معتمد</span></td></tr>
-      `;
-    }
+  function renderWBSTable(){
+    const table = document.getElementById('wbs-table');
+    if(!table) return;
+    let html = '<tr><th>كود النشاط</th><th>اسم النشاط</th><th>المدة (يوم)</th><th>نسبة الإنجاز</th></tr>';
+    wbsData.forEach(w => {
+      html += `<tr><td class="mono">${w.code}</td><td>${w.name}</td><td class="mono">${w.duration}</td><td><div style="display:flex;align-items:center;gap:8px;"><div class="bar-track"><div class="bar-fill" style="width:${w.progressPct}%"></div></div><span>${w.progressPct}%</span></div></td></tr>`;
+    });
+    table.innerHTML = html;
+  }
 
-    function renderReTable() {
-      document.getElementById('re-table').innerHTML = `
-        <tr><th>رقم الوحدة</th><th>العميل</th><th>إجمالي الثمن</th><th>التحصيلات</th><th>الحالة</th></tr>
-        <tr><td><span class="mono">B-101</span></td><td>د. أشرف عبد العزيز</td><td class="mono">3,500,000</td><td class="mono">2,050,000</td><td><span class="pill pill-green">منتظم</span></td></tr>
-      `;
-    }
+  function renderSubsTable(){
+    const table = document.getElementById('subs-table');
+    if(!table) return;
+    let filtered = currentCompany === 'all' ? subcontractorsData : subcontractorsData.filter(s => s.company === currentCompany);
+    let html = '<tr><th>المقاول</th><th>التخصص</th><th>قيمة العقد</th><th>المنفذ</th><th>الضمان المحتجز</th></tr>';
+    filtered.forEach(s => {
+      html += `<tr><td>${s.name}</td><td>${s.scope}</td><td class="mono">${s.contractValue.toLocaleString()}</td><td class="mono">${s.executed.toLocaleString()}</td><td>${s.retentionPct}%</td></tr>`;
+    });
+    table.innerHTML = html;
+  }
 
-    function exportTableToExcel(tableId, filename) {
-      const wb = XLSX.utils.table_to_book(document.getElementById(tableId), {sheet: "Sheet1"});
-      XLSX.writeFile(wb, filename + '.xlsx');
+  function renderContractsTable(){
+    const table = document.getElementById('contracts-table');
+    if(!table) return;
+    let filtered = currentCompany === 'all' ? contractsData : contractsData.filter(c => c.company === currentCompany);
+    let html = '<tr><th>الوحدة</th><th>العميل</th><th>إجمالي القيمة</th><th>المحصل</th><th>الحالة</th></tr>';
+    filtered.forEach(c => {
+      html += `<tr><td class="mono">${c.unit}</td><td>${c.customer}</td><td class="mono">${c.value.toLocaleString()}</td><td class="mono">${c.collected.toLocaleString()}</td><td><span class="pill pill-green">${c.status}</span></td></tr>`;
+    });
+    table.innerHTML = html;
+  }
+
+  function renderInstallmentsTable(){
+    const table = document.getElementById('installments-table');
+    if(!table) return;
+    let html = '<tr><th>رقم الدفعة</th><th>تاريخ الاستحقاق</th><th>المبلغ</th><th>الحالة</th></tr>';
+    contractsData.forEach(c => {
+      if(c.installments){
+        c.installments.forEach(i => {
+          html += `<tr><td class="mono">${i.no} (${c.unit})</td><td>${i.due}</td><td class="mono">${i.amount.toLocaleString()}</td><td><span class="pill ${i.status === 'مسدد' ? 'pill-green' : 'pill-amber'}">${i.status}</span></td></tr>`;
+        });
+      }
+    });
+    table.innerHTML = html;
+  }
+
+  function renderHandoverTable(){
+    const table = document.getElementById('handover-table');
+    if(!table) return;
+    let html = '<tr><th>الوحدة</th><th>العميل</th><th>المعاينة</th><th>ملاحظات التسليم</th><th>الحالة</th></tr>';
+    handoverData.forEach(h => {
+      html += `<tr><td class="mono">${h.unit}</td><td>${h.customer}</td><td>${h.inspection}</td><td class="mono">${h.snags}</td><td><span class="pill pill-green">${h.status}</span></td></tr>`;
+    });
+    table.innerHTML = html;
+  }
+
+  function renderStockTable(){
+    const table = document.getElementById('stock-table');
+    if(!table) return;
+    let filtered = currentCompany === 'all' ? inventoryData : inventoryData.filter(i => i.company === currentCompany);
+    let html = '<tr><th>الصنف</th><th>المخزن</th><th>الوحدة</th><th>الرصيد الحالي</th><th>آخر سعر شراء</th><th>آخر حركة</th></tr>';
+    filtered.forEach(item => {
+      html += `<tr><td>${item.item}</td><td>${item.warehouse}</td><td>${item.unit}</td><td class="mono">${item.qty}</td><td class="mono">${item.lastPrice.toLocaleString()}</td><td>${item.lastMoveDesc}</td></tr>`;
+    });
+    table.innerHTML = html;
+  }
+
+  function renderPOTable(){
+    const table = document.getElementById('po-table');
+    if(!table) return;
+    let filtered = currentCompany === 'all' ? poData : poData.filter(p => p.company === currentCompany);
+    let html = '<tr><th>رقم الأمر</th><th>المورد</th><th>الصنف</th><th>الكمية</th><th>تاريخ التوريد المتوقع</th><th>الحالة</th></tr>';
+    filtered.forEach(p => {
+      html += `<tr><td class="mono">${p.code}</td><td>${p.supplier}</td><td>${p.item}</td><td class="mono">${p.qty}</td><td>${p.expectedDate}</td><td><span class="pill pill-amber">${p.status}</span></td></tr>`;
+    });
+    table.innerHTML = html;
+  }
+
+  function renderSuppliersEvalTable(){
+    const table = document.getElementById('suppliers-eval-table');
+    if(!table) return;
+    let html = '<tr><th>المورد</th><th>التخصص</th><th>الالتزام بالمواعيد (%)</th><th>جودة التوريدات (%)</th></tr>';
+    suppliersData.forEach(s => {
+      html += `<tr><td>${s.name}</td><td>${s.scope}</td><td><div style="display:flex;align-items:center;gap:8px;"><div class="bar-track"><div class="bar-fill" style="width:${s.onTimePct}%"></div></div><span>${s.onTimePct}%</span></div></td><td><div style="display:flex;align-items:center;gap:8px;"><div class="bar-track"><div class="bar-fill" style="width:${s.qualityPct}%"></div></div><span>${s.qualityPct}%</span></div></td></tr>`;
+    });
+    table.innerHTML = html;
+  }
+
+  function renderEmployeesTable(){
+    const table = document.getElementById('employees-table');
+    if(!table) return;
+    let filtered = currentCompany === 'all' ? employeesData : employeesData.filter(e => e.company === currentCompany);
+    let html = '<tr><th>الموظف</th><th>المسمى الوظيفي</th><th>القسم</th><th>تاريخ التعيين</th><th>الراتب الأساسي</th><th>الحالة</th></tr>';
+    filtered.forEach(emp => {
+      html += `<tr><td>${emp.name}</td><td>${emp.role}</td><td>${emp.dept}</td><td>${emp.hireDate}</td><td class="mono">${emp.salary.toLocaleString()}</td><td><span class="pill pill-green">${emp.status}</span></td></tr>`;
+    });
+    table.innerHTML = html;
+  }
+
+  function renderUnitGrid(){
+    const grid = document.getElementById('unit-grid');
+    if(!grid) return;
+    let html = '';
+    for(let i=1; i<=30; i++){
+      let statusClass = i <= 18 ? 'u-sold' : (i <= 24 ? 'u-reserved' : 'u-available');
+      let statusText = i <= 18 ? 'مباعة' : (i <= 24 ? 'محجوزة' : 'متاحة');
+      html += `<div class="unit-cell ${statusClass}" title="وحدة B-${100+i}: ${statusText}">B-${100+i}</div>`;
     }
-  </script>
+    grid.innerHTML = html;
+  }
+
+  function recalcCostModel(){
+    const matQty = parseFloat(document.getElementById('cm-mat-qty').value) || 0;
+    const matRate = parseFloat(document.getElementById('cm-mat-rate').value) || 0;
+    const labQty = parseFloat(document.getElementById('cm-lab-qty').value) || 0;
+    const labRate = parseFloat(document.getElementById('cm-lab-rate').value) || 0;
+    const eqQty = parseFloat(document.getElementById('cm-eq-qty').value) || 0;
+    const eqRate = parseFloat(document.getElementById('cm-eq-rate').value) || 0;
+    const subVal = parseFloat(document.getElementById('cm-sub-value').value) || 0;
+
+    const matTot = matQty * matRate;
+    const labTot = labQty * labRate;
+    const eqTot = eqQty * eqRate;
+    const directTot = matTot + labTot + eqTot + subVal;
+
+    const overheadPct = parseFloat(document.getElementById('cm-overhead').value) || 0;
+    const contingencyPct = parseFloat(document.getElementById('cm-contingency').value) || 0;
+    const overheadTot = directTot * ((overheadPct + contingencyPct) / 100);
+    const grandTot = directTot + overheadTot;
+
+    document.getElementById('cm-mat-total').textContent = matTot.toLocaleString();
+    document.getElementById('cm-lab-total').textContent = labTot.toLocaleString();
+    document.getElementById('cm-eq-total').textContent = eqTot.toLocaleString();
+    document.getElementById('cm-sub-total').textContent = subVal.toLocaleString();
+    document.getElementById('cm-direct-total').textContent = directTot.toLocaleString();
+    document.getElementById('cm-overhead-total').textContent = overheadTot.toLocaleString();
+    document.getElementById('cm-grand-total').textContent = grandTot.toLocaleString();
+  }
+
+  function recalcPricing(){
+    const area = parseFloat(document.getElementById('pc-area').value) || 0;
+    const rate = parseFloat(document.getElementById('pc-rate').value) || 0;
+    const downPct = parseFloat(document.getElementById('pc-down').value) || 0;
+    const years = parseFloat(document.getElementById('pc-years').value) || 0;
+    const freq = parseFloat(document.getElementById('pc-freq').value) || 12;
+
+    const total = area * rate;
+    const downVal = total * (downPct / 100);
+    const remaining = total - downVal;
+    const totalInstallments = years * freq;
+    const installmentVal = totalInstallments > 0 ? (remaining / totalInstallments) : 0;
+
+    document.getElementById('pc-total').textContent = total.toLocaleString() + ' ج.م';
+    document.getElementById('pc-downval').textContent = downVal.toLocaleString() + ' ج.م';
+    document.getElementById('pc-remaining').textContent = remaining.toLocaleString() + ' ج.م';
+    document.getElementById('pc-installment').textContent = installmentVal.toLocaleString() + ' ج.م';
+  }
+
+  function recalcPayroll(){
+    const basic = parseFloat(document.getElementById('pr-basic').value) || 0;
+    const allow = parseFloat(document.getElementById('pr-allow').value) || 0;
+    const otHours = parseFloat(document.getElementById('pr-ot-hours').value) || 0;
+    const otRate = parseFloat(document.getElementById('pr-ot-rate').value) || 0;
+    const insurancePct = parseFloat(document.getElementById('pr-insurance').value) || 0;
+    const taxPct = parseFloat(document.getElementById('pr-tax').value) || 0;
+    const deduct = parseFloat(document.getElementById('pr-deduct').value) || 0;
+
+    const gross = basic + allow + (otHours * otRate);
+    const totalDeduct = (basic * (insurancePct / 100)) + (gross * (taxPct / 100)) + deduct;
+    const net = gross - totalDeduct;
+
+    document.getElementById('pr-gross').textContent = gross.toLocaleString() + ' ج.م';
+    document.getElementById('pr-total-deduct').textContent = totalDeduct.toLocaleString() + ' ج.م';
+    document.getElementById('pr-net').textContent = net.toLocaleString() + ' ج.م';
+  }
+
+  function openModal(id){
+    alert('فتح نافذة: ' + id);
+  }
+
+  function openJournalModal(){ alert('فتح نافذة قيد يومية جديد'); }
+  function openARStatementPicker(){ alert('اختر العميل لكشف الحساب'); }
+  function openPaySchedule(){ alert('جدول سداد المستحقات'); }
+  function openNewBankModal(){ alert('إضافة حساب بنكي جديد'); }
+  function openNewExpenseModal(){
+    const amt = prompt('أدخل مبلغ المصروف:', '5000');
+    if(!amt) return;
+    const desc = prompt('أدخل بيان المصروف:', 'ضيافة مكتب');
+    expensesData.push({ date: '2026-07-22', category: 'إداري', desc: desc || 'مصروف عام', method: 'نقدي', amount: parseFloat(amt) || 0 });
+    renderExpensesTable();
+    saveAllData();
+  }
+  function openNewCustodyModal(){ alert('طلب عهدة نقدية جديدة'); }
+  function openMaterialIssueModal(){ alert('إذن صرف مواد من المخزن'); }
+  function openNewPOModal(){ alert('إنشاء أمر شراء جديد'); }
+  
+  function exportTableToExcel(tableId, filename){
+    const table = document.getElementById(tableId);
+    if(!table) return alert('الجدول غير موجود');
+    let wb = XLSX.utils.table_to_book(table, {sheet: "Sheet1"});
+    XLSX.writeFile(wb, filename + '.xlsx');
+  }
+
+  function printPanelAsPDF(panelId, title){
+    window.print();
+  }
+
+  function generateReport(){
+    const type = document.getElementById('rep-type').value;
+    const out = document.getElementById('report-output');
+    const title = document.getElementById('report-title');
+    const table = document.getElementById('report-table');
+    out.style.display = 'block';
+    title.textContent = 'تقرير: ' + type;
+    table.innerHTML = '<tr><th> البيان </th><th> القيمة </th></tr><tr><td>إجمالي الإيرادات</td><td class="mono">18,400,000</td></tr><tr><td>إجمالي المصروفات</td><td class="mono">11,200,000</td></tr>';
+  }
+
+  window.addEventListener('load', function(){
+    loadAllData();
+    initLoginUsers();
+    recalcCostModel();
+    recalcPricing();
+    recalcPayroll();
+    renderAllViews();
+  });
+</script>
 </body>
 </html>
