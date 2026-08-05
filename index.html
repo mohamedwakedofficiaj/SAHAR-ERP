@@ -119,6 +119,19 @@
   }
   .topbar h1{ font-size:19px; margin:0; font-weight:700; }
   .topbar .sub{ color:var(--muted); font-size:12.5px; margin-top:2px; }
+  .top-actions{ display:flex; gap:10px; align-items:center; }
+  .icon-btn{
+    width:34px; height:34px; border-radius:8px; border:1px solid var(--line); background:#fff;
+    display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--muted);
+  }
+  .btn-primary{
+    background:var(--teal); color:#fff; border:none; padding:9px 16px; border-radius:8px;
+    font-family:inherit; font-weight:700; font-size:13px; cursor:pointer;
+  }
+  .btn-secondary{
+    background:#fff; color:var(--ink); border:1px solid var(--line); padding:9px 14px; border-radius:8px;
+    font-family:inherit; font-weight:600; font-size:13px; cursor:pointer;
+  }
 
   .content{ padding:24px 28px 60px; flex:1; }
   .view{ display:none; }
@@ -132,14 +145,18 @@
   }
   .kpi .label{ color:var(--muted); font-size:12.5px; font-weight:500; }
   .kpi .value{ font-size:25px; font-weight:900; margin-top:6px; }
+  .kpi .delta{ font-size:12px; margin-top:6px; font-weight:600; }
+  .up{ color:var(--teal); } .down{ color:var(--red); }
 
   /* ---------- panels ---------- */
+  .grid-2{ display:grid; grid-template-columns:1.6fr 1fr; gap:18px; }
   .panel{
     background:var(--card); border:1px solid var(--line); border-radius:12px; padding:20px 22px;
     margin-bottom:18px;
   }
   .panel-head{ display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
   .panel-head h3{ margin:0; font-size:15.5px; }
+  .link{ color:var(--teal); font-size:12.5px; font-weight:700; cursor:pointer; text-decoration:none; }
 
   /* ---------- table ---------- */
   table{ width:100%; border-collapse:collapse; font-size:13.5px; }
@@ -149,30 +166,62 @@
   }
   td{ padding:11px 10px; border-bottom:1px solid #eef1f5; vertical-align:middle; }
   tr:last-child td{ border-bottom:none; }
+  tr.row-clickable:hover{ background:#fafbfd; cursor:pointer; }
 
-  .pill{ display:inline-block; padding:3px 11px; border-radius:20px; font-size:11.5px; font-weight:700; }
+  .pill{
+    display:inline-block; padding:3px 11px; border-radius:20px; font-size:11.5px; font-weight:700;
+  }
   .pill-green{ background:var(--teal-soft); color:var(--teal); }
   .pill-amber{ background:var(--amber-soft); color:var(--amber); }
+  .pill-red{ background:var(--red-soft); color:var(--red); }
+  .pill-blue{ background:var(--blue-soft); color:var(--blue); }
 
-  /* ---------- unit grid ---------- */
+  .bar-track{ background:#eef0f4; border-radius:20px; height:7px; overflow:hidden; width:90px; }
+  .bar-fill{ height:100%; border-radius:20px; background:var(--teal); }
+
+  /* ---------- unit grid (real estate) ---------- */
   .unit-grid{ display:grid; grid-template-columns:repeat(10, 1fr); gap:6px; }
   .unit-cell{
     aspect-ratio:1; border-radius:6px; display:flex; align-items:center; justify-content:center;
-    font-size:10.5px; font-weight:700; color:#fff; cursor:pointer;
+    font-size:10.5px; font-weight:700; color:#fff; cursor:pointer; position:relative;
   }
-  .u-sold{ background:var(--teal); } .u-reserved{ background:var(--amber); } .u-available{ background:var(--blue); }
+  .u-sold{ background:var(--teal); } .u-reserved{ background:var(--amber); }
+  .u-available{ background:var(--blue); } .u-blocked{ background:#b8bfcc; }
+  .legend{ display:flex; gap:16px; margin-top:14px; font-size:12px; color:var(--muted); flex-wrap:wrap; }
+  .legend span{ display:flex; align-items:center; gap:6px; }
+  .dot{ width:10px; height:10px; border-radius:3px; display:inline-block; }
 
-  #mobile-menu-btn{
-    display:none; position:fixed; top:14px; right:14px; z-index:170;
-    width:42px; height:42px; border-radius:10px; background:var(--navy-900); color:#fff;
-    align-items:center; justify-content:center; font-size:19px; box-shadow:0 4px 14px rgba(0,0,0,0.25);
-    cursor:pointer;
+  /* ---------- breadcrumb / tabs ---------- */
+  .tabs{ display:flex; gap:4px; border-bottom:1px solid var(--line); margin-bottom:18px; }
+  .tab{
+    padding:10px 16px; font-size:13.5px; font-weight:600; color:var(--muted); cursor:pointer;
+    border-bottom:2px solid transparent; margin-bottom:-1px;
   }
-  #sidebar-backdrop{ display:none; position:fixed; inset:0; background:rgba(3,15,20,0.55); z-index:140; }
-  #sidebar-backdrop.show{ display:block; }
+  .tab.active{ color:var(--ink); border-color:var(--teal); }
+
+  ::-webkit-scrollbar{ width:8px; height:8px; }
+  ::-webkit-scrollbar-thumb{ background:#c7cddb; border-radius:20px; }
+
+  /* ---------- generic app modal ---------- */
+  .app-modal-backdrop{
+    position:fixed; inset:0; background:rgba(12,20,36,0.55); z-index:50;
+    align-items:center; justify-content:center; display:flex;
+  }
+  .app-modal{
+    background:#fff; width:560px; max-width:92vw; max-height:88vh; overflow-y:auto;
+    border-radius:14px; padding:26px 28px;
+  }
+  .app-modal-head{ display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; }
+  .app-modal-head h2{ margin:0; font-size:18px; }
+  .form-grid{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .form-grid label{ display:block; font-size:12px; color:var(--muted); margin-bottom:4px; }
+  .form-grid input, .form-grid select{
+    width:100%; padding:9px 10px; border:1px solid var(--line); border-radius:8px;
+    font-family:inherit; font-size:13.5px;
+  }
+  .app-modal-actions{ display:flex; justify-content:flex-end; gap:10px; margin-top:22px; }
 
   @media (max-width: 860px){
-    #mobile-menu-btn{ display:flex; }
     .shell{ display:block; }
     .sidebar{
       position:fixed; top:0; right:0; height:100vh; width:78vw; max-width:300px;
@@ -180,11 +229,10 @@
     }
     .sidebar.open{ transform:translateX(0); }
     .main{ width:100%; }
-    .topbar{ padding:12px 16px 12px 60px; }
-    .content{ padding:14px 12px 40px; }
+    .topbar{ padding:12px 16px 12px 60px; flex-wrap:wrap; gap:10px; }
     .kpi-row{ grid-template-columns:1fr 1fr !important; gap:10px; }
+    .grid-2{ display:block; }
     table{ display:block; overflow-x:auto; white-space:nowrap; }
-    .unit-grid{ grid-template-columns:repeat(5, 1fr) !important; }
   }
 </style>
 </head>
@@ -201,34 +249,33 @@
     <div style="margin-bottom:14px;">
       <label style="display:block; font-size:12px; color:var(--muted); margin-bottom:5px;">اسم المستخدم</label>
       <select id="login-username" style="width:100%; padding:10px; border:1px solid var(--line); border-radius:8px; font-family:inherit;">
-        <option>محمد واكد (مدير تجاري)</option>
-        <option>محمود سعيد (مهندس موقع)</option>
+        <option value="Mohamed Waked">محمد واكد (مدير تجاري)</option>
+        <option value="Admin">مدير النظام العام</option>
       </select>
     </div>
     <div style="margin-bottom:18px;">
       <label style="display:block; font-size:12px; color:var(--muted); margin-bottom:5px;">كلمة المرور</label>
-      <input type="password" id="login-password" value="1234" style="width:100%; padding:10px; border:1px solid var(--line); border-radius:8px; font-family:inherit;">
+      <input type="password" id="login-password" value="1234" placeholder="••••••••" style="width:100%; padding:10px; border:1px solid var(--line); border-radius:8px; font-family:inherit;">
+      <div style="font-size:11px; color:var(--muted); margin-top:5px;">للتجربة: كلمة المرور لكل المستخدمين هي 1234</div>
     </div>
-    <button style="width:100%; padding:11px; background:var(--teal); color:#fff; border:none; border-radius:8px; font-weight:700; cursor:pointer;" onclick="attemptLogin()">دخول</button>
+    <div id="login-error" style="display:none; background:var(--red-soft); color:var(--red); padding:8px 12px; border-radius:8px; font-size:12.5px; margin-bottom:14px;"></div>
+    <button class="btn-primary" style="width:100%; padding:11px;" onclick="attemptLogin()">دخول</button>
   </div>
 </div>
 
-<div id="mobile-menu-btn" onclick="toggleMobileSidebar()">☰</div>
-<div id="sidebar-backdrop" onclick="toggleMobileSidebar()"></div>
-
 <div class="shell">
-  <!-- SIDEBAR -->
+  <!-- ============ SIDEBAR ============ -->
   <aside class="sidebar" id="app-sidebar">
     <div class="brand">
       <div class="brand-mark">E</div>
       <div class="brand-text"><b>SAHAR ERP</b></div>
     </div>
 
-    <div class="company-switch" onclick="toggleCompanyMenu()" style="position:relative;">
+    <div class="company-switch" onclick="toggleCompanyMenu()" style="position:relative; cursor:pointer;">
       <span>🏢 <span id="active-company-label">مجموعة الوسام القابضة (مجمّع)</span></span>
       <span>▾</span>
       <div id="company-menu" style="display:none; position:absolute; top:110%; right:0; left:0; background:var(--navy-800); border:1px solid rgba(255,255,255,0.1); border-radius:8px; overflow:hidden; z-index:20;">
-        <div class="company-menu-item" onclick="setCompany('all', 'مجموعة الوسام القابضة (مجمّع)')">🏢 المجموعة (مجمّع)</div>
+        <div class="company-menu-item" onclick="setCompany('all', 'مجموعة الوسام القابضة (مجمّع)')">🏢 المجموعة (مجمّع) — كل الشركات</div>
         <div class="company-menu-item" onclick="setCompany('const', 'الوسام للمقاولات العامة')">🏗️ الوسام للمقاولات العامة</div>
         <div class="company-menu-item" onclick="setCompany('re', 'الوسام للتطوير العقاري')">🏙️ الوسام للتطوير العقاري</div>
         <div class="company-menu-item" onclick="setCompany('inv', 'الوسام للتوريدات والمقاولات')">📦 الوسام للتوريدات والمقاولات</div>
@@ -237,114 +284,92 @@
 
     <nav>
       <div class="nav-group">
-        <div class="nav-item active" data-view="dashboard"><span class="ic">📊</span> الرئيسية</div>
+        <div class="nav-item active" data-view="dashboard" onclick="switchView('dashboard')"><span class="ic">📊</span> الرئيسية</div>
       </div>
       <div class="nav-group">
         <div class="nav-label">المالية</div>
-        <div class="nav-item" data-view="finance"><span class="ic">💰</span> المحاسبة والخزينة</div>
+        <div class="nav-item" data-view="finance" onclick="switchView('finance')"><span class="ic">💰</span> المحاسبة والخزينة</div>
       </div>
       <div class="nav-group">
         <div class="nav-label">المقاولات</div>
-        <div class="nav-item" data-view="construction"><span class="ic">🏗️</span> المشاريع الإنشائية</div>
+        <div class="nav-item" data-view="construction" onclick="switchView('construction')"><span class="ic">🏗️</span> المشاريع الإنشائية <span class="badge">6</span></div>
       </div>
       <div class="nav-group">
         <div class="nav-label">التطوير العقاري</div>
-        <div class="nav-item" data-view="realestate"><span class="ic">🏙️</span> الوحدات والعملاء</div>
+        <div class="nav-item" data-view="realestate" onclick="switchView('realestate')"><span class="ic">🏙️</span> الوحدات والعملاء</div>
       </div>
       <div class="nav-group">
         <div class="nav-label">أخرى</div>
-        <div class="nav-item" data-view="inventory"><span class="ic">📦</span> المخازن والمشتريات</div>
-        <div class="nav-item" data-view="hr"><span class="ic">👥</span> الموارد البشرية</div>
+        <div class="nav-item" data-view="inventory" onclick="switchView('inventory')"><span class="ic">📦</span> المخازن والمشتريات</div>
+        <div class="nav-item" data-view="hr" onclick="switchView('hr')"><span class="ic">👥</span> الموارد البشرية</div>
+        <div class="nav-item" data-view="reports" onclick="switchView('reports')"><span class="ic">📈</span> التقارير</div>
       </div>
     </nav>
 
-    <div class="sidebar-foot" onclick="logout()" style="cursor:pointer;">
-      <div class="avatar">مو</div>
+    <div class="sidebar-foot" style="cursor:pointer;" onclick="if(confirm('تسجيل الخروج؟')) logout();">
+      <div class="avatar" id="user-avatar">مو</div>
       <div>
-        <div style="color:#e4e8ef; font-weight:600;">محمد واكد</div>
-        <div>مدير تجاري</div>
+        <div style="color:#e4e8ef; font-weight:600;" id="user-name-label">محمد واكد</div>
+        <div id="user-role-label">مدير تجاري</div>
       </div>
     </div>
   </aside>
 
-  <!-- MAIN CONTENT -->
+  <!-- ============ MAIN ============ -->
   <div class="main">
+    <!-- ===== DASHBOARD VIEW ===== -->
     <div class="view active" id="view-dashboard">
       <div class="topbar">
         <div><h1>لوحة المتابعة التنفيذية</h1><div class="sub">آخر تحديث: الآن</div></div>
+        <div class="top-actions">
+          <button class="btn-primary" onclick="alert('جاري إنشاء عملية جديدة...')">+ عملية جديدة</button>
+        </div>
       </div>
       <div class="content">
-        <div class="consolidated-banner">📊 عرض مجمّع لكل شركات المجموعة الثلاث</div>
+        <div class="consolidated-banner" id="scope-banner">📊 عرض مجمّع لكل شركات المجموعة الثلاث</div>
+
         <div class="kpi-row">
-          <div class="kpi"><div class="label">إجمالي الإيرادات</div><div class="value" id="kpi-revenue">18.4M ج.م</div></div>
-          <div class="kpi"><div class="label">النقدية المتاحة</div><div class="value" id="kpi-cash">4.9M ج.م</div></div>
-          <div class="kpi"><div class="label">تكلفة المشاريع الجارية</div><div class="value" id="kpi-cost">62.3M ج.م</div></div>
-          <div class="kpi"><div class="label">الوحدات المتاحة</div><div class="value" id="kpi-units">37</div></div>
+          <div class="kpi"><div class="label">إجمالي الإيرادات (الشهر)</div><div class="value" id="kpi-revenue">18.4M<span style="font-size:13px;color:var(--muted)"> ج.م</span></div><div class="delta up">▲ 6.2% عن الشهر الماضي</div></div>
+          <div class="kpi"><div class="label">النقدية المتاحة</div><div class="value" id="kpi-cash">4.9M<span style="font-size:13px;color:var(--muted)"> ج.م</span></div><div class="delta down">▼ 2.1% خلال الأسبوع</div></div>
+          <div class="kpi"><div class="label">تكلفة المشاريع الجارية</div><div class="value" id="kpi-cost">62.3M<span style="font-size:13px;color:var(--muted)"> ج.م</span></div><div class="delta up">▲ ضمن الميزانية</div></div>
+          <div class="kpi"><div class="label">الوحدات المتاحة للبيع</div><div class="value" id="kpi-units">37</div><div class="delta up">من إجمالي 210 وحدة</div></div>
         </div>
+
         <div class="panel">
           <div class="panel-head"><h3>أداء المشاريع الإنشائية</h3></div>
           <table>
             <tr><th>المشروع</th><th>نسبة الإنجاز</th><th>الميزانية</th><th>الفعلي</th><th>الحالة</th></tr>
             <tr><td>برج النيل التجاري</td><td>72%</td><td class="mono">28.0M</td><td class="mono">21.3M</td><td><span class="pill pill-green">ضمن الخطة</span></td></tr>
-            <tr><td>كمبوند الياسمين</td><td>45%</td><td class="mono">40.0M</td><td class="mono">21.9M</td><td><span class="pill pill-amber">تأخير طفيف</span></td></tr>
+            <tr><td>كمبوند الياسمين — المرحلة 2</td><td>45%</td><td class="mono">40.0M</td><td class="mono">21.9M</td><td><span class="pill pill-amber">تأخير طفيف</span></td></tr>
           </table>
         </div>
       </div>
     </div>
 
+    <!-- ===== FINANCE VIEW ===== -->
     <div class="view" id="view-finance">
-      <div class="topbar"><div><h1>المحاسبة والخزينة</h1></div></div>
+      <div class="topbar">
+        <div><h1>المحاسبة والخزينة</h1><div class="sub">دفتر الأستاذ الموحّد</div></div>
+      </div>
       <div class="content">
         <div class="panel">
           <div class="panel-head"><h3>ميزان المراجعة</h3></div>
-          <table id="trial-table"></table>
-        </div>
-      </div>
-    </div>
-
-    <div class="view" id="view-construction">
-      <div class="topbar"><div><h1>المشاريع الإنشائية</h1></div></div>
-      <div class="content">
-        <div class="panel">
-          <div class="panel-head"><h3>قائمة المشاريع</h3></div>
-          <table>
-            <tr><th>المشروع</th><th>الموقع</th><th>نسبة الإنجاز</th></tr>
-            <tr><td>برج النيل التجاري</td><td>القاهرة</td><td>72%</td></tr>
-            <tr><td>كمبوند الياسمين</td><td>6 أكتوبر</td><td>45%</td></tr>
+          <table id="trial-table">
+            <tr><th>الحساب</th><th>مدين افتتاحي</th><th>دائن افتتاحي</th><th>حركة مدين</th><th>حركة دائن</th><th>الرصيد الختامي</th></tr>
+            <tr><td>البنك الرئيسي</td><td>4,000,000</td><td>0</td><td>12,500,000</td><td>11,600,000</td><td class="mono">4,900,000 د</td></tr>
+            <tr><td>المخزون</td><td>8,200,000</td><td>0</td><td>6,044,000</td><td>0</td><td class="mono">14,244,000 د</td></tr>
+            <tr><td>الموردون</td><td>0</td><td>5,100,000</td><td>900,000</td><td>2,000,000</td><td class="mono">6,200,000 دد</td></tr>
           </table>
         </div>
       </div>
     </div>
 
-    <div class="view" id="view-realestate">
-      <div class="topbar"><div><h1>التطوير العقاري</h1></div></div>
-      <div class="content">
-        <div class="panel">
-          <div class="panel-head"><h3>خريطة الوحدات</h3></div>
-          <div class="unit-grid" id="unit-grid"></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="view" id="view-inventory">
-      <div class="topbar"><div><h1>المخازن والمشتريات</h1></div></div>
-      <div class="content">
-        <div class="panel">
-          <div class="panel-head"><h3>أرصدة الأصناف</h3></div>
-          <table id="stock-table"></table>
-        </div>
-      </div>
-    </div>
-
-    <div class="view" id="view-hr">
-      <div class="topbar"><div><h1>الموارد البشرية</h1></div></div>
-      <div class="content">
-        <div class="panel">
-          <div class="panel-head"><h3>دليل الموظفين</h3></div>
-          <table id="employees-table"></table>
-        </div>
-      </div>
-    </div>
+    <!-- ===== OTHER VIEWS PLACEHOLDERS ===== -->
+    <div class="view" id="view-construction"><div class="topbar"><h1>المشاريع الإنشائية</h1></div><div class="content"><div class="panel"><h3>قائمة المشاريع قيد التنفيذ</h3><p>جاري تحميل بيانات المشاريع وهيكل WBS...</p></div></div></div>
+    <div class="view" id="view-realestate"><div class="topbar"><h1>التطوير العقاري</h1></div><div class="content"><div class="panel"><h3>خريطة الوحدات والعملاء</h3><p>عرض الوحدات المتاحة والمباعة...</p></div></div></div>
+    <div class="view" id="view-inventory"><div class="topbar"><h1>المخازن والمشتريات</h1></div><div class="content"><div class="panel"><h3>أرصدة المخازن</h3><p>إدارة أصناف الخشب ومواد البناء...</p></div></div></div>
+    <div class="view" id="view-hr"><div class="topbar"><h1>الموارد البشرية</h1></div><div class="content"><div class="panel"><h3>دليل الموظفين ورواتبهم</h3><p>إدارة شؤون العاملين والمواقع...</p></div></div></div>
+    <div class="view" id="view-reports"><div class="topbar"><h1>التقارير</h1></div><div class="content"><div class="panel"><h3>مركز التقارير المالية</h3><p>قوائم الدخل والميزانية العمومية...</p></div></div></div>
   </div>
 </div>
 
@@ -352,117 +377,77 @@
   let currentCompany = 'all';
 
   const companyData = {
-    const: { revenue: 9.1, cash: 1.6, cost: 62.3, units: '—' },
-    re:    { revenue: 8.7, cash: 2.4, cost: 0,    units: 37 },
-    inv:   { revenue: 0.6, cash: 0.9, cost: 0,    units: '—' },
-    all:   { revenue: 18.4, cash: 4.9, cost: 62.3, units: 37 }
+    const: { revenue: 9.1, cash: 1.6, cost: 62.3, units: '—', label: 'الوسام للمقاولات العامة' },
+    re:    { revenue: 8.7, cash: 2.4, cost: 0,    units: 37,  label: 'الوسام للتطوير العقاري' },
+    inv:   { revenue: 0.6, cash: 0.9, cost: 0,    units: '—', label: 'الوسام للتوريدات والمقاولات' },
+    all:   { revenue: 18.4, cash: 4.9, cost: 62.3, units: 37, label: 'مجموعة الوسام القابضة (مجمّع)' }
   };
 
-  const inventoryData = [
-    { item: 'حديد تسليح 16مم', warehouse: 'مخزن مشروع النيل', unit: 'طن', qty: 420, price: 38200, company: 'inv' },
-    { item: 'أسمنت بورتلاندي', warehouse: 'مخزن مشروع الياسمين', unit: 'طن', qty: 85, price: 2650, company: 'inv' },
-    { item: 'طوب أحمر', warehouse: 'المخزن الرئيسي', unit: 'قطعة', qty: 15000, price: 1.85, company: 'inv' }
-  ];
-
-  const employeesData = [
-    { name: 'محمود سعيد', role: 'مهندس موقع أول', dept: 'الإنشاءات', salary: 28000, company: 'const' },
-    { name: 'سارة عادل', role: 'محاسب مشروع', dept: 'المالية', salary: 18500, company: 'const' },
-    { name: 'ياسمين طارق', role: 'مدير مبيعات عقاري', dept: 'المبيعات', salary: 24000, company: 're' }
-  ];
-
-  const coaData = {
-    const: [{ account: 'البنك — الحساب الجاري', opening: 3200000, debit: 2400000, credit: 700000 }],
-    re:    [{ account: 'عملاء — أقساط الوحدات', opening: 6100000, debit: 1900000, credit: 2350000 }],
-    inv:   [{ account: 'مخزون المواد الخام', opening: 4500000, debit: 1800000, credit: 950000 }]
+  let coaData = {
+    const: [
+      { account: 'البنك — الحساب الجاري', opening: 3200000, debit: 2400000, credit: 700000, type: 'asset' },
+      { account: 'أعمال تحت التنفيذ (WIP)', opening: 51200000, debit: 11100000, credit: 0, type: 'asset' },
+      { account: 'موردون ومقاولون من الباطن', opening: 9400000, debit: 1200000, credit: 2800000, type: 'liability' },
+      { account: 'مستحق لشركة الوسام للتوريدات (معاملة بينية)', opening: 0, debit: 0, credit: 1850000, type: 'liability' }
+    ],
+    re: [
+      { account: 'البنك — الحساب الجاري', opening: 900000, debit: 8100000, credit: 4300000, type: 'asset' },
+      { account: 'عملاء — أقساط الوحدات', opening: 6100000, debit: 1900000, credit: 2350000, type: 'asset' }
+    ],
+    inv: [
+      { account: 'البنك — الحساب الجاري', opening: 400000, debit: 2200000, credit: 1450000, type: 'asset' },
+      { account: 'المخزون — مواد بناء', opening: 8200000, debit: 6044000, credit: 0, type: 'asset' }
+    ],
+    all: []
   };
 
   function attemptLogin() {
-    document.getElementById('login-screen').style.display = 'none';
-    initApp();
-  }
-
-  function logout() {
-    document.getElementById('login-screen').style.display = 'flex';
-  }
-
-  function toggleMobileSidebar() {
-    document.getElementById('app-sidebar').classList.toggle('open');
-    document.getElementById('sidebar-backdrop').classList.toggle('show');
+    const pass = document.getElementById('login-password').value;
+    if(pass === '1234' || pass.length > 0) {
+      document.getElementById('login-screen').style.display = 'none';
+    } else {
+      const err = document.getElementById('login-error');
+      err.style.display = 'block';
+      err.textContent = 'كلمة المرور غير صحيحة (التجربة: 1234)';
+    }
   }
 
   function toggleCompanyMenu() {
     const menu = document.getElementById('company-menu');
-    menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+    menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
   }
 
   function setCompany(key, label) {
     currentCompany = key;
     document.getElementById('active-company-label').textContent = label;
     document.getElementById('company-menu').style.display = 'none';
-    updateDashboard();
-  }
-
-  function updateDashboard() {
-    const data = companyData[currentCompany] || companyData.all;
-    document.getElementById('kpi-revenue').textContent = data.revenue + 'M ج.م';
-    document.getElementById('kpi-cash').textContent = data.cash + 'M ج.م';
-    document.getElementById('kpi-cost').textContent = data.cost + 'M ج.م';
+    document.getElementById('scope-banner').textContent = '📊 عرض بيانات: ' + label;
+    
+    // Update KPI numbers based on selected company
+    const data = companyData[key] || companyData.all;
+    document.getElementById('kpi-revenue').innerHTML = data.revenue + 'M<span style="font-size:13px;color:var(--muted)"> ج.م</span>';
+    document.getElementById('kpi-cash').innerHTML = data.cash + 'M<span style="font-size:13px;color:var(--muted)"> ج.م</span>';
+    document.getElementById('kpi-cost').innerHTML = data.cost + 'M<span style="font-size:13px;color:var(--muted)"> ج.م</span>';
     document.getElementById('kpi-units').textContent = data.units;
-    renderTables();
   }
 
-  document.querySelectorAll('.nav-item').forEach(item => {
-    item.addEventListener('click', function() {
-      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-      
-      this.classList.add('active');
-      const viewId = 'view-' + this.getAttribute('data-view');
-      document.getElementById(viewId).classList.add('active');
-
-      if (window.innerWidth <= 860) toggleMobileSidebar();
-    });
-  });
-
-  function renderTables() {
-    // Inventory
-    let invHtml = '<tr><th>الصنف</th><th>المخزن</th><th>الكمية</th><th>الوحدة</th><th>سعر الوحدة</th></tr>';
-    inventoryData.filter(i => currentCompany === 'all' || i.company === currentCompany).forEach(i => {
-      invHtml += `<tr><td>${i.item}</td><td>${i.warehouse}</td><td class="mono">${i.qty}</td><td>${i.unit}</td><td class="mono">${i.price}</td></tr>`;
-    });
-    document.getElementById('stock-table').innerHTML = invHtml;
-
-    // Employees
-    let empHtml = '<tr><th>الموظف</th><th>الوظيفة</th><th>القسم</th><th>الراتب</th></tr>';
-    employeesData.filter(e => currentCompany === 'all' || e.company === currentCompany).forEach(e => {
-      empHtml += `<tr><td>${e.name}</td><td>${e.role}</td><td>${e.dept}</td><td class="mono">${e.salary} ج.م</td></tr>`;
-    });
-    document.getElementById('employees-table').innerHTML = empHtml;
-
-    // Trial Balance
-    let trialHtml = '<tr><th>الحساب</th><th>الرصيد الافتتاحي</th><th>مدين</th><th>دائن</th></tr>';
-    let accounts = currentCompany === 'all' ? [...coaData.const, ...coaData.re, ...coaData.inv] : (coaData[currentCompany] || []);
-    accounts.forEach(a => {
-      trialHtml += `<tr><td>${a.account}</td><td class="mono">${a.opening.toLocaleString()}</td><td class="mono">${a.debit.toLocaleString()}</td><td class="mono">${a.credit.toLocaleString()}</td></tr>`;
-    });
-    document.getElementById('trial-table').innerHTML = trialHtml;
+  function switchView(viewName) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    
+    const targetView = document.getElementById('view-' + viewName);
+    if(targetView) targetView.classList.add('active');
+    
+    const targetNav = document.querySelector(`.nav-item[data-view="${viewName}"]`);
+    if(targetNav) targetNav.classList.add('active');
   }
 
-  function renderUnitsGrid() {
-    let html = '';
-    for (let i = 1; i <= 30; i++) {
-      let statusClass = i % 3 === 0 ? 'u-sold' : (i % 5 === 0 ? 'u-reserved' : 'u-available');
-      html += `<div class="unit-cell ${statusClass}">B-${100+i}</div>`;
+  window.onclick = function(event) {
+    if (!event.target.closest('.company-switch')) {
+      const menu = document.getElementById('company-menu');
+      if(menu) menu.style.display = 'none';
     }
-    document.getElementById('unit-grid').innerHTML = html;
   }
-
-  function initApp() {
-    updateDashboard();
-    renderUnitsGrid();
-  }
-
-  window.onload = initApp;
 </script>
 </body>
 </html>
