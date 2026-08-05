@@ -10,7 +10,7 @@ async function bootstrap() {
   if (process.env.RUN_SETUP === 'true') {
     console.log('RUN_SETUP=true detected - applying schema and seed data...');
     try {
-      // الاتصال بقاعدة البيانات من المجلد الرئيسي مباشرة
+      // الاتصال بقاعدة البيانات
       const pool = require('./pool');
       
       const { rows } = await pool.query(
@@ -20,15 +20,18 @@ async function bootstrap() {
       if (rows && rows[0] && rows[0].exists) {
         console.log('Schema already applied – skipping setup.');
       } else {
-        // قراءة ملف schema.sql من المجلد الرئيسي
+        // قراءة وتطبيق ملف schema.sql
         const schemaPath = path.join(__dirname, 'schema.sql');
         if (fs.existsSync(schemaPath)) {
+          console.log('Applying schema.sql ...');
           const schemaSql = fs.readFileSync(schemaPath, 'utf8');
           await pool.query(schemaSql);
           console.log('✓ Schema applied.');
+        } else {
+          console.log('X schema.sql file not found in root directory!');
         }
 
-        // تشغيل بيانات البداية إذا كان الملف موجوداً
+        // إدخال بيانات البداية إن وجدت
         const seedPath = path.join(__dirname, 'seed.js');
         if (fs.existsSync(seedPath)) {
           const seed = require('./seed');
@@ -39,15 +42,17 @@ async function bootstrap() {
         }
       }
     } catch (err) {
-      console.error('X RUN_SETUP failed:', err.message);
+      // طباعة تفاصيل الخطأ بالكامل لمعرفة المسبب فوراً
+      console.error('X Migration failed details:', err.message || err);
+      if (err.stack) console.error(err.stack);
     }
   }
 }
 
-// استدعاء دالة التهيئة
+// تنفيذ التهيئة
 bootstrap();
 
-// استدعاء المسارات من المجلد الرئيسي مباشرة بدون مجلد routes
+// استدعاء كافة المسارات (Routes) من المجلد الرئيسي
 const authRoutes = require('./auth.routes');
 const companiesRoutes = require('./companies.routes');
 const purchaseOrdersRoutes = require('./purchaseOrders.routes');
