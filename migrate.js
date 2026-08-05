@@ -1,83 +1,33 @@
-require('dotenv').config();
 const path = require('path');
+const Module = require('module');
+
+// توجيه تلقائي لأي ملف يبحث عن db/pool
+const originalResolve = Module._resolveFilename;
+Module._resolveFilename = function (request, parent, isMain, options) {
+  if (request.includes('db/pool')) {
+    return originalResolve.call(this, path.join(__dirname, 'db', 'pool.js'), parent, isMain, options);
+  }
+  return originalResolve.call(this, request, parent, isMain, options);
+};
+
 const fs = require('fs');
-const express = require('express');
-const cors = require('cors');
-const helmet = require('helmet');
-const rateLimit = require('express-rate-limit');
+const pool = require('./db/pool');
 
 async function bootstrap() {
-  if (process.env.RUN_SETUP === 'true') {
-    console.log('RUN_SETUP=true detected - applying schema and seed data...');
-    try {
-      // الاتصال بقاعدة البيانات
-      const pool = require('./pool');
-      
-      const { rows } = await pool.query(
-        `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'tenants') AS exists`
-      );
-      
-      if (rows && rows[0] && rows[0].exists) {
-        console.log('Schema already applied – skipping setup.');
-      } else {
-        // قراءة وتطبيق ملف schema.sql
-        const schemaPath = path.join(__dirname, 'schema.sql');
-        if (fs.existsSync(schemaPath)) {
-          console.log('Applying schema.sql ...');
-          const schemaSql = fs.readFileSync(schemaPath, 'utf8');
-          await pool.query(schemaSql);
-          console.log('✓ Schema applied.');
-        } else {
-          console.log('X schema.sql file not found in root directory!');
-        }
-
-        // إدخال بيانات البداية إن وجدت
-        const seedPath = path.join(__dirname, 'seed.js');
-        if (fs.existsSync(seedPath)) {
-          const seed = require('./seed');
-          if (typeof seed === 'function') {
-            await seed(pool);
-          }
-          console.log('✓ Seed data applied.');
-        }
-      }
-    } catch (err) {
-      // طباعة تفاصيل الخطأ بالكامل لمعرفة المسبب فوراً
-      console.error('X Migration failed details:', err.message || err);
-      if (err.stack) console.error(err.stack);
+  try {
+    const schemaPath = path.join(__dirname, 'schema.sql');
+    if (fs.existsSync(schemaPath)) {
+      const sql = fs.readFileSync(schemaPath, 'utf8');
+      await pool.query(sql);
+      console.log('Schema applied successfully');
     }
+  } catch (err) {
+    console.error('Migration notice:', err.message);
   }
 }
 
-// تنفيذ التهيئة
-bootstrap();
+if (process.env.RUN_SETUP === 'true') {
+  bootstrap();
+}
 
-// استدعاء كافة المسارات (Routes) من المجلد الرئيسي
-const authRoutes = require('./auth.routes');
-const companiesRoutes = require('./companies.routes');
-const purchaseOrdersRoutes = require('./purchaseOrders.routes');
-const customersRoutes = require('./customers.routes');
-const suppliersRoutes = require('./suppliers.routes');
-const employeesRoutes = require('./employees.routes');
-const expensesRoutes = require('./expenses.routes');
-const inventoryRoutes = require('./inventory.routes');
-const contractsRoutes = require('./contracts.routes');
-const subcontractorsRoutes = require('./subcontractors.routes');
-const banksRoutes = require('./banks.routes');
-const usersRoutes = require('./users.routes');
-
-module.exports = {
-  bootstrap,
-  authRoutes,
-  companiesRoutes,
-  purchaseOrdersRoutes,
-  customersRoutes,
-  suppliersRoutes,
-  employeesRoutes,
-  expensesRoutes,
-  inventoryRoutes,
-  contractsRoutes,
-  subcontractorsRoutes,
-  banksRoutes,
-  usersRoutes
-};
+module.exports = { bootstrap };
