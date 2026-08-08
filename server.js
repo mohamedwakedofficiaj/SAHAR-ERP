@@ -4,8 +4,12 @@ const app = express();
 
 app.use(express.json());
 
-// تفعيل مجلد public ليعرض الواجهة بشكل صحيح
+// 1. أولاً: تفعيل مجلد public ليعرض الواجهة وصفحة تسجيل الدخول على الرابط الأساسي
 app.use(express.static(path.join(__dirname, 'public')));
+
+// 2. ثانياً: ربط راوتر المصروفات تحت مسار الـ API الصحيح وليس على الجذر
+const expensesRouter = require('./routes/expenses'); // تأكد من مسار الملف الصحيح لديك
+app.use('/api/expenses', expensesRouter);
 
 // مسار تسجيل الدخول
 app.post('/api/auth/login', (req, res) => {
