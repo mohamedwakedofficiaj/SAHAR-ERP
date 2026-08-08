@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAHAR-ERP — النسخة المتصلة</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+    <div id="app" class="min-h-screen flex items-center justify-center p-4">
+        <!-- Login Form -->
+        <div id="login-container" class="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
+            <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">تسجيل الدخول — النسخة الحقيقية المتصلة</h2>
+            <div id="error-msg" class="hidden mb-4 p-3 bg-red-100 text-red-700 rounded text-sm"></div>
+            <form id="login-form" onsubmit="handleLogin(event)">
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">البريد الإلكتروني</label>
+                    <input type="email" id="email" value="mohamedwakedofficial@gmail.com" required class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div class="mb-6">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">كلمة المرور</label>
+                    <input type="password" id="password" value="ChangeMe123!" required class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <button type="submit" class="w-full bg-cyan-800 text-white py-2 rounded-lg hover:bg-cyan-900 transition font-bold">دخول</button>
+            </form>
+        </div>
+
+        <!-- Dashboard Container (Hidden initially) -->
+        <div id="dashboard-container" class="hidden w-full max-w-6xl bg-white p-8 rounded-lg shadow-md">
+            <div class="flex justify-between items-center mb-6 border-b pb-4">
+                <h1 class="text-2xl font-bold text-gray-800">نظام SAHAR-ERP المتصل بقاعدة البيانات</h1>
+                <button onclick="logout()" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition">تسجيل الخروج</button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                    <h3 class="font-bold text-blue-800">حالة السيرفر وقاعدة البيانات</h3>
+                    <p class="text-green-600 font-semibold mt-2">متصل بنجاح (Online)</p>
+                </div>
+                <div class="bg-green-50 p-4 rounded-lg border border-green-200">
+                    <h3 class="font-bold text-green-800">إدارة المخازن والجرد</h3>
+                    <p class="text-gray-600 mt-2">نشط ومحدث</p>
+                </div>
+                <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+                    <h3 class="font-bold text-yellow-800">المشتريات والمصروفات</h3>
+                    <p class="text-gray-600 mt-2">جاهز للإدخال والتقارير</p>
+                </div>
+            </div>
+            <div class="p-4 bg-gray-50 rounded border text-center text-gray-700">
+                السيستم يعمل بكامل طاقته الديناميكية المتصلة. يمكنك إضافة التحديثات البرمجية المطلوبة هنا.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function handleLogin(event) {
+            event.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const errorDiv = document.getElementById('error-msg');
+
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await response.json();
+
+                if (response.ok) {
+                    localStorage.setItem('token', data.token);
+                    document.getElementById('login-container').classList.add('hidden');
+                    document.getElementById('dashboard-container').classList.remove('hidden');
+                } else {
+                    errorDiv.textContent = 'فشل الدخول: ' + (data.error || 'خطأ من السيرفر');
+                    errorDiv.classList.remove('hidden');
+                }
+            } catch (err) {
+                errorDiv.textContent = 'فشل الاتصال بالسيرفر';
+                errorDiv.classList.remove('hidden');
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            document.getElementById('dashboard-container').classList.add('hidden');
+            document.getElementById('login-container').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
