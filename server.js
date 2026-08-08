@@ -4,7 +4,7 @@ const app = express();
 
 app.use(express.json());
 
-// تفعيل الواجهة الثابتة والمتفاعلة من مجلد public
+// تفعيل مجلد الواجهة ليعمل السيستم بشكل متفاعل
 app.use(express.static(path.join(__dirname, 'public')));
 
 // مسار تسجيل الدخول
